@@ -13,7 +13,7 @@ export async function GET() {
   const connection = await mysql.createConnection(dbConfig);
   const [tabs] = await connection.query('SELECT * FROM tabs');
   const tabsWithCards = await Promise.all(
-    tabs.map(async (tab: any) => {
+    tabs.map(async (tab: { id: number; name: string }) => {
       const [cards] = await connection.query('SELECT * FROM cards WHERE tab_id = ?', [tab.id]);
       return { ...tab, cards };
     })

@@ -26,7 +26,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     await connection.end();
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Failed to process request' });
   }
 };

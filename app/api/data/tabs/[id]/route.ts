@@ -17,7 +17,7 @@ export async function DELETE(req: NextRequest) {
     await connection.query('DELETE FROM tabs WHERE id = ?', [id]);
     await connection.end();
     return NextResponse.json({});
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete tab' }, { status: 500 });
   }
 }
@@ -31,7 +31,7 @@ export async function PUT(req: NextRequest) {
     await connection.query('UPDATE tabs SET name = ? WHERE id = ?', [name, id]);
     await connection.end();
     return NextResponse.json({});
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update tab' }, { status: 500 });
   }
 }

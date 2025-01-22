@@ -17,7 +17,7 @@ export async function DELETE(req: NextRequest) {
     await connection.query('DELETE FROM cards WHERE id = ?', [id]);
     await connection.end();
     return NextResponse.json({});
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete card' }, { status: 500 });
   }
 }
@@ -31,7 +31,7 @@ export async function PUT(req: NextRequest) {
     await connection.query('UPDATE cards SET title = ?, text = ? WHERE id = ?', [title, text, id]);
     await connection.end();
     return NextResponse.json({});
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update card' }, { status: 500 });
   }
 }
