@@ -38,7 +38,7 @@ const Home = () => {
       });
   }, []);
 
-  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+  const handleTabChange = (event: React.ChangeEvent<unknown>, newValue: number) => {
     setSelectedTab(newValue);
   };
 
