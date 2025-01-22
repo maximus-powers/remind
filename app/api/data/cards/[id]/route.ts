@@ -1,35 +1,33 @@
+// THESE ARE QUERY FUNCTIONS FOR A SPECIFIC CARD
+
 import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { deleteCardById, updateCardContentById } from '../../../queries';
 
-const dbConfig = {
-  host: '167.99.8.156',
-  port: 3306,
-  user: 'study_bot_frontend',
-  password: 'yeahBOI',
-  database: 'study_bot',
-};
-
+// delete the card
 export async function DELETE(req: NextRequest) {
   try {
     const { pathname } = new URL(req.url);
     const id = pathname.split('/').pop();
-    const connection = await mysql.createConnection(dbConfig);
-    await connection.query('DELETE FROM cards WHERE id = ?', [id]);
-    await connection.end();
+    if (!id) {
+      throw new Error('Invalid ID');
+    }
+    await deleteCardById(id);
     return NextResponse.json({});
   } catch {
     return NextResponse.json({ error: 'Failed to delete card' }, { status: 500 });
   }
 }
 
+// update the cards text and title
 export async function PUT(req: NextRequest) {
   try {
     const { pathname } = new URL(req.url);
     const id = pathname.split('/').pop();
+    if (!id) {
+      throw new Error('Invalid ID');
+    }
     const { title, text } = await req.json();
-    const connection = await mysql.createConnection(dbConfig);
-    await connection.query('UPDATE cards SET title = ?, text = ? WHERE id = ?', [title, text, id]);
-    await connection.end();
+    await updateCardContentById(id, title, text);
     return NextResponse.json({});
   } catch {
     return NextResponse.json({ error: 'Failed to update card' }, { status: 500 });

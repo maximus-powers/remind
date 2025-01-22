@@ -1,18 +1,11 @@
+// QUERIES FOR FULL CARDS TABLE
+
 import { NextRequest, NextResponse } from 'next/server';
-import mysql, { ResultSetHeader } from 'mysql2/promise';
+import { addNewCard } from '../../queries';
 
-const dbConfig = {
-  host: '167.99.8.156',
-  port: 3306,
-  user: 'study_bot_frontend',
-  password: 'yeahBOI',
-  database: 'study_bot',
-};
-
+// add card (to tab)
 export async function POST(req: NextRequest) {
   const { title, text, tabId } = await req.json();
-  const connection = await mysql.createConnection(dbConfig);
-  const [result] = await connection.query<ResultSetHeader>('INSERT INTO cards (title, text, tab_id) VALUES (?, ?, ?)', [title, text, tabId]);
-  await connection.end();
-  return NextResponse.json({ id: result.insertId, title, text });
+  const newCard = await addNewCard(title, text, tabId);
+  return NextResponse.json(newCard);
 }

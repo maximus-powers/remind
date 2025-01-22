@@ -1,35 +1,33 @@
+// THESE ARE QUERY FUNCTIONS FOR A SPECIFIC TAB
+
 import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import { deleteTabById, updateTabNameById } from '../../../queries';
 
-const dbConfig = {
-  host: '167.99.8.156',
-  port: 3306,
-  user: 'study_bot_frontend',
-  password: 'yeahBOI',
-  database: 'study_bot',
-};
-
+// delete tab
 export async function DELETE(req: NextRequest) {
   try {
     const { pathname } = new URL(req.url);
     const id = pathname.split('/').pop();
-    const connection = await mysql.createConnection(dbConfig);
-    await connection.query('DELETE FROM tabs WHERE id = ?', [id]);
-    await connection.end();
+    if (!id) {
+      throw new Error('Invalid ID');
+    }
+    await deleteTabById(id);
     return NextResponse.json({});
   } catch {
     return NextResponse.json({ error: 'Failed to delete tab' }, { status: 500 });
   }
 }
 
+// update tab name
 export async function PUT(req: NextRequest) {
   try {
     const { pathname } = new URL(req.url);
     const id = pathname.split('/').pop();
+    if (!id) {
+      throw new Error('Invalid ID');
+    }
     const { name } = await req.json();
-    const connection = await mysql.createConnection(dbConfig);
-    await connection.query('UPDATE tabs SET name = ? WHERE id = ?', [name, id]);
-    await connection.end();
+    await updateTabNameById(id, name);
     return NextResponse.json({});
   } catch {
     return NextResponse.json({ error: 'Failed to update tab' }, { status: 500 });

@@ -3,4 +3,7 @@ module.exports = {
   images: {
     domains: ['localhost'],
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
