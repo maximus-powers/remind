@@ -4,18 +4,30 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, Tab, Button, Card, CardContent, IconButton } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
 
+interface TabType {
+  id: number;
+  name: string;
+  cards: CardType[];
+}
+
+interface CardType {
+  id: number;
+  title: string;
+  text: string;
+}
+
 const Home = () => {
-  const [tabs, setTabs] = useState([]);
+  const [tabs, setTabs] = useState<TabType[]>([]);
   const [selectedTab, setSelectedTab] = useState(0);
 
   useEffect(() => {
     fetch('http://localhost:3001/api/tabs')
       .then((response) => response.json())
-      .then((data) => {
-        const fetchCardsPromises = data.map((tab) =>
+      .then((data: TabType[]) => {
+        const fetchCardsPromises = data.map((tab: TabType) =>
           fetch(`http://localhost:3001/api/cards?tab_id=${tab.id}`)
             .then((response) => response.json())
-            .then((cards) => ({ ...tab, cards }))
+            .then((cards: CardType[]) => ({ ...tab, cards }))
         );
         return Promise.all(fetchCardsPromises);
       })
@@ -26,7 +38,7 @@ const Home = () => {
       });
   }, []);
 
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setSelectedTab(newValue);
   };
 
@@ -40,13 +52,13 @@ const Home = () => {
       body: JSON.stringify(newTab),
     })
       .then((response) => response.json())
-      .then((data) => setTabs([...tabs, { ...data, cards: [] }]))
+      .then((data: TabType) => setTabs([...tabs, { ...data, cards: [] }]))
       .catch((error) => {
         console.error('Error adding tab:', error);
       });
   };
 
-  const deleteTab = (index) => {
+  const deleteTab = (index: number) => {
     const tabId = tabs[index].id;
     fetch(`http://localhost:3001/api/tabs?id=${tabId}`, {
       method: 'DELETE',
@@ -61,7 +73,7 @@ const Home = () => {
       });
   };
 
-  const handleTabTitleChange = (index, title) => {
+  const handleTabTitleChange = (index: number, title: string) => {
     const newTabs = [...tabs];
     newTabs[index].name = title;
     setTabs(newTabs);
@@ -76,7 +88,7 @@ const Home = () => {
     });
   };
 
-  const addCard = (tabIndex) => {
+  const addCard = (tabIndex: number) => {
     const newCard = { title: '', text: '' };
     const tabId = tabs[tabIndex].id;
     fetch(`http://localhost:3001/api/cards`, {
@@ -87,7 +99,7 @@ const Home = () => {
       body: JSON.stringify({ ...newCard, tab_id: tabId }),
     })
       .then((response) => response.json())
-      .then((data) => {
+      .then((data: CardType) => {
         const newTabs = [...tabs];
         newTabs[tabIndex].cards.push(data);
         setTabs(newTabs);
@@ -97,7 +109,7 @@ const Home = () => {
       });
   };
 
-  const deleteCard = (tabIndex, cardIndex) => {
+  const deleteCard = (tabIndex: number, cardIndex: number) => {
     const cardId = tabs[tabIndex].cards[cardIndex].id;
     fetch(`http://localhost:3001/api/cards/${cardId}`, {
       method: 'DELETE',
@@ -112,7 +124,7 @@ const Home = () => {
       });
   };
   
-  const handleCardBlur = (tabIndex, cardIndex) => {
+  const handleCardBlur = (tabIndex: number, cardIndex: number) => {
     const cardId = tabs[tabIndex].cards[cardIndex].id;
     const { title, text } = tabs[tabIndex].cards[cardIndex];
     fetch(`http://localhost:3001/api/cards/${cardId}`, {
@@ -126,13 +138,13 @@ const Home = () => {
     });
   };
 
-  const handleCardKeyDown = (event, tabIndex, cardIndex) => {
+  const handleCardKeyDown = (event: React.KeyboardEvent<HTMLInputElement>, tabIndex: number, cardIndex: number) => {
     if (event.key === 'Enter') {
       handleCardBlur(tabIndex, cardIndex);
     }
   };
 
-  const handleInputChange = (event, tabIndex, cardIndex, field) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>, tabIndex: number, cardIndex: number, field: string) => {
     const newTabs = [...tabs];
     newTabs[tabIndex].cards[cardIndex][field] = event.target.value;
     setTabs(newTabs);
