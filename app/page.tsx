@@ -144,7 +144,7 @@ const Home = () => {
     }
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>, tabIndex: number, cardIndex: number, field: string) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>, tabIndex: number, cardIndex: number, field: keyof CardType) => {
     const newTabs = [...tabs];
     newTabs[tabIndex].cards[cardIndex][field] = event.target.value;
     setTabs(newTabs);
