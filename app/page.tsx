@@ -21,120 +21,74 @@ const Home = () => {
   const [selectedTab, setSelectedTab] = useState(0);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/tabs')
-      .then((response) => response.json())
-      .then((data: TabType[]) => {
-        const fetchCardsPromises = data.map((tab: TabType) =>
-          fetch(`http://localhost:3001/api/cards?tab_id=${tab.id}`)
-            .then((response) => response.json())
-            .then((cards: CardType[]) => ({ ...tab, cards }))
-        );
-        return Promise.all(fetchCardsPromises);
-      })
-      .then((tabsWithCards) => setTabs(tabsWithCards))
-      .catch((error) => {
-        console.error('Error fetching tabs:', error);
-        alert('Error fetching tabs: ' + error.message);
-      });
+    const fetchData = async () => {
+      const response = await fetch('/api/data/tabs');
+      const tabsWithCards = await response.json();
+      setTabs(tabsWithCards);
+    };
+    fetchData();
   }, []);
 
   const handleTabChange = (event: React.ChangeEvent<unknown>, newValue: number) => {
     setSelectedTab(newValue);
   };
 
-  const addTab = () => {
-    const newTab = { name: `Tab ${tabs.length + 1}` };
-    fetch('http://localhost:3001/api/tabs', {
+  const addTab = async () => {
+    const response = await fetch('/api/data/tabs', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newTab),
-    })
-      .then((response) => response.json())
-      .then((data: TabType) => setTabs([...tabs, { ...data, cards: [] }]))
-      .catch((error) => {
-        console.error('Error adding tab:', error);
-      });
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: `Tab ${tabs.length + 1}` }),
+    });
+    const newTab = await response.json();
+    setTabs([...tabs, newTab]);
   };
 
-  const deleteTab = (index: number) => {
+  const deleteTab = async (index: number) => {
     const tabId = tabs[index].id;
-    fetch(`http://localhost:3001/api/tabs?id=${tabId}`, {
-      method: 'DELETE',
-    })
-      .then(() => {
-        const newTabs = tabs.filter((_, i) => i !== index);
-        setTabs(newTabs);
-        setSelectedTab(0);
-      })
-      .catch((error) => {
-        console.error('Error deleting tab:', error);
-      });
+    await fetch(`/api/data/tabs/${tabId}`, { method: 'DELETE' });
+    const newTabs = tabs.filter((_, i) => i !== index);
+    setTabs(newTabs);
+    setSelectedTab(0);
   };
 
-  const handleTabTitleChange = (index: number, title: string) => {
+  const handleTabTitleChange = async (index: number, title: string) => {
     const newTabs = [...tabs];
     newTabs[index].name = title;
     setTabs(newTabs);
-    fetch(`http://localhost:3001/api/tabs/${newTabs[index].id}`, {
+    await fetch(`/api/data/tabs/${newTabs[index].id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: title }),
-    }).catch((error) => {
-      console.error('Error updating tab:', error);
     });
   };
 
-  const addCard = (tabIndex: number) => {
-    const newCard = { title: '', text: '' };
-    const tabId = tabs[tabIndex].id;
-    fetch(`http://localhost:3001/api/cards`, {
+  const addCard = async (tabIndex: number) => {
+    const response = await fetch('/api/data/cards', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ...newCard, tab_id: tabId }),
-    })
-      .then((response) => response.json())
-      .then((data: CardType) => {
-        const newTabs = [...tabs];
-        newTabs[tabIndex].cards.push(data);
-        setTabs(newTabs);
-      })
-      .catch((error) => {
-        console.error('Error adding card:', error);
-      });
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: '', text: '', tabId: tabs[tabIndex].id }),
+    });
+    const newCard = await response.json();
+    const newTabs = [...tabs];
+    newTabs[tabIndex].cards.push(newCard);
+    setTabs(newTabs);
   };
 
-  const deleteCard = (tabIndex: number, cardIndex: number) => {
+  const deleteCard = async (tabIndex: number, cardIndex: number) => {
     const cardId = tabs[tabIndex].cards[cardIndex].id;
-    fetch(`http://localhost:3001/api/cards/${cardId}`, {
-      method: 'DELETE',
-    })
-      .then(() => {
-        const newTabs = [...tabs];
-        newTabs[tabIndex].cards.splice(cardIndex, 1);
-        setTabs(newTabs);
-      })
-      .catch((error) => {
-        console.error('Error deleting card:', error);
-      });
+    await fetch(`/api/data/cards/${cardId}`, { method: 'DELETE' });
+    const newTabs = [...tabs];
+    newTabs[tabIndex].cards.splice(cardIndex, 1);
+    setTabs(newTabs);
   };
-  
-  const handleCardBlur = (tabIndex: number, cardIndex: number) => {
+
+  const handleCardBlur = async (tabIndex: number, cardIndex: number) => {
     const cardId = tabs[tabIndex].cards[cardIndex].id;
     const { title, text } = tabs[tabIndex].cards[cardIndex];
-    fetch(`http://localhost:3001/api/cards/${cardId}`, {
+    await fetch(`/api/data/cards/${cardId}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, text }),
-    }).catch((error) => {
-      console.error('Error updating card:', error);
     });
   };
 
@@ -197,7 +151,7 @@ const Home = () => {
               </Card>
             ))}
           </div>
-          <Button onClick={() => addCard(tabIndex)} variant="outlined" color="white" className="mr-2">
+          <Button onClick={() => addCard(tabIndex)} variant="outlined" sx={{ color: 'white', borderColor: 'white' }} className="mr-2">
             <Add /> Add Card
           </Button>
           <Button onClick={() => deleteTab(tabIndex)} variant="outlined" color="primary">

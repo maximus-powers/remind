@@ -1,23 +1,10 @@
 {
   "version": 2,
-  "builds": [
+  "builds": [],
+  "rewrites": [
     {
-      "src": "api/server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "next.config.js",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/"
+      "source": "/api/:path*",
+      "destination": "/app/api/:path*"
     }
   ]
 }

@@ -1,0 +1,37 @@
+import { NextRequest, NextResponse } from 'next/server';
+import mysql from 'mysql2/promise';
+
+const dbConfig = {
+  host: '167.99.8.156',
+  port: 3306,
+  user: 'study_bot_frontend',
+  password: 'yeahBOI',
+  database: 'study_bot',
+};
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { pathname } = new URL(req.url);
+    const id = pathname.split('/').pop();
+    const connection = await mysql.createConnection(dbConfig);
+    await connection.query('DELETE FROM cards WHERE id = ?', [id]);
+    await connection.end();
+    return NextResponse.json({});
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to delete card' }, { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const { pathname } = new URL(req.url);
+    const id = pathname.split('/').pop();
+    const { title, text } = await req.json();
+    const connection = await mysql.createConnection(dbConfig);
+    await connection.query('UPDATE cards SET title = ?, text = ? WHERE id = ?', [title, text, id]);
+    await connection.end();
+    return NextResponse.json({});
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update card' }, { status: 500 });
+  }
+}
