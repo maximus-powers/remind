@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 const dbConfig = {
   host: '167.99.8.156',
@@ -11,10 +12,10 @@ const dbConfig = {
 
 export async function GET() {
   const connection = await mysql.createConnection(dbConfig);
-  const [tabs] = await connection.query('SELECT * FROM tabs');
+  const [tabs] = await connection.query<RowDataPacket[]>('SELECT * FROM tabs');
   const tabsWithCards = await Promise.all(
-    tabs.map(async (tab: { id: number; name: string }) => {
-      const [cards] = await connection.query('SELECT * FROM cards WHERE tab_id = ?', [tab.id]);
+    (tabs as { id: number; name: string }[]).map(async (tab) => {
+      const [cards] = await connection.query<RowDataPacket[]>('SELECT * FROM cards WHERE tab_id = ?', [tab.id]);
       return { ...tab, cards };
     })
   );
@@ -25,7 +26,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const { name } = await req.json();
   const connection = await mysql.createConnection(dbConfig);
-  const [result] = await connection.query('INSERT INTO tabs (name) VALUES (?)', [name]);
+  const [result] = await connection.query<ResultSetHeader>('INSERT INTO tabs (name) VALUES (?)', [name]);
   await connection.end();
   return NextResponse.json({ id: result.insertId, name, cards: [] });
 }
