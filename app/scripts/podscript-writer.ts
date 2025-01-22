@@ -51,18 +51,23 @@ async function generateScript() {
     )
   );
 
+  if (!cardsByTab[0].cards.length || !cardsByTab[1].cards.length || !cardsByTab[2].cards.length) {
+    throw new Error('Not enough cards to generate a script');
+  }
+
   const themeResponse = await themeChain.invoke({
-    tab1Content: cardsByTab[0].map(card => card.text).join('\n'),
-    tab2Content: cardsByTab[1].map(card => card.text).join('\n'),
-    tab3Content: cardsByTab[2].map(card => card.text).join('\n'),
+    tab1Content: cardsByTab[0].cards.map(card => card.text).join('\n'),
+    tab2Content: cardsByTab[1].cards.map(card => card.text).join('\n'),
+    tab3Content: cardsByTab[2].cards.map(card => card.text).join('\n'),
   });
 
   const selectedCards = themeResponse;
 
   // generate script
-  const scriptPromptTemplate = new ChatPromptTemplate({
-    template: `
-      Generate a podcast script with the following structure:
+  const scriptPromptTemplate = ChatPromptTemplate.fromMessages([
+    [
+      "system",
+      `Generate a podcast script with the following structure:
       Introduction
       Section for Tab 1 (includes content from the 7 cards, and 3 new concepts)
       Section for Tab 2 (includes content from the 7 cards, and 3 new concepts)
@@ -75,16 +80,19 @@ async function generateScript() {
       Tab 2:
       {tab2Content}
       Tab 3:
-      {tab3Content}
-    `,
-    inputVariables: ['tab1Content', 'tab2Content', 'tab3Content'],
-  });
+      {tab3Content}`
+    ],
+    [
+      "human",
+      `{tab1Content}\n{tab2Content}\n{tab3Content}`
+    ]
+  ]);
 
   const scriptChain = scriptPromptTemplate.pipe(openai);
   const script = await scriptChain.invoke({
-    tab1Content: selectedCards.tab1.map(id => cardsByTab[0].find(card => card.id === id)?.text || '').join('\n'),
-    tab2Content: selectedCards.tab2.map(id => cardsByTab[1].find(card => card.id === id)?.text || '').join('\n'),
-    tab3Content: selectedCards.tab3.map(id => cardsByTab[2].find(card => card.id === id)?.text || '').join('\n'),
+    tab1Content: selectedCards.tab1.map(id => cardsByTab[0].cards.find(card => card.id === id)?.text || '').join('\n'),
+    tab2Content: selectedCards.tab2.map(id => cardsByTab[1].cards.find(card => card.id === id)?.text || '').join('\n'),
+    tab3Content: selectedCards.tab3.map(id => cardsByTab[2].cards.find(card => card.id === id)?.text || '').join('\n'),
   });
 
   return script;
