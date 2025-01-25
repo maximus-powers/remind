@@ -3,11 +3,11 @@ import mysql, { RowDataPacket, ResultSetHeader } from 'mysql2/promise';
 // these get imported in the routes files
 
 const dbConfig = {
-  host: '167.99.8.156',
-  port: 3306,
-  user: 'study_bot_frontend',
-  password: 'yeahBOI',
-  database: 'study_bot',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || '3306', 10), 
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 };
 
 export async function getAllTabsAndCards() {
