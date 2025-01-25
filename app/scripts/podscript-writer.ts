@@ -30,9 +30,9 @@ async function generateScript() {
       
       Return the selected card ids in the following format:
       {
-        "tab1": ["id1", "id2", "id3", "id4", "id5", "id6", "id7"],
-        "tab2": ["id1", "id2", "id3", "id4", "id5", "id6", "id7"],
-        "tab3": ["id1", "id2", "id3", "id4", "id5", "id6", "id7"]
+        "tab1": ["1", "2", "3", "4", "5", "6", "7"],
+        "tab2": ["8", "9", "10", "11", "12", "13", "14"],
+        "tab3": ["15", "16", "17", "18", "19", "20", "21"]
       }`
     ],
     [

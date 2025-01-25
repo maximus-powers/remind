@@ -1,5 +1,7 @@
 import mysql, { RowDataPacket, ResultSetHeader } from 'mysql2/promise';
 
+// these get imported in the routes files
+
 const dbConfig = {
   host: '167.99.8.156',
   port: 3306,
