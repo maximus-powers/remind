@@ -6,8 +6,8 @@ import { deleteCardById, updateCardContentById } from '../../../queries';
 // delete the card
 export async function DELETE(req: NextRequest) {
   try {
-    const { pathname } = new URL(req.url);
-    const id = pathname.split('/').pop();
+    const { pathname } = req.nextUrl;
+    const id = parseInt(pathname.split('/').pop() || '', 10);
     if (!id) {
       throw new Error('Invalid ID');
     }
@@ -21,8 +21,8 @@ export async function DELETE(req: NextRequest) {
 // update the cards text and title
 export async function PUT(req: NextRequest) {
   try {
-    const { pathname } = new URL(req.url);
-    const id = pathname.split('/').pop();
+    const { pathname } = req.nextUrl;
+    const id = parseInt(pathname.split('/').pop() || '', 10);
     if (!id) {
       throw new Error('Invalid ID');
     }

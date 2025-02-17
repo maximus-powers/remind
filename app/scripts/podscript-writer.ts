@@ -1,104 +1,101 @@
-import { getTabsWithOldestAverageLastIncluded, getOldestCardsByTab } from '../api/queries';
-import { ChatOpenAI } from "@langchain/openai";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { getTabsWithOldestAverageLastIncluded, getOldestCardsByTab, getTabNameFromID } from '../api/queries';
+import { openai } from '@ai-sdk/openai';
+import { generateObject } from 'ai';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
 dotenv.config();
+const model = openai("gpt-4o", { structuredOutputs: true })
 
-async function generateScript() {
+export async function generateScript() {
   // get the 3 tab ids with the oldest average cards "last_included" date
   const tabIds = await getTabsWithOldestAverageLastIncluded();
 
   // get the 25 cards from each tab id with the oldest "last_included" dates
   const cardsByTab = await getOldestCardsByTab(tabIds);
 
-  // find a theme and select 7 cards from each tab
-  const openai = new ChatOpenAI({ apiKey: process.env.OPENAI_API_KEY, model: 'gpt-4o' });
-  const themePromptTemplate = ChatPromptTemplate.fromMessages([
-    [
-      "system",
-      `Given the following cards, find a common theme and select 7 card ids from each tab that are most relevant to the theme.
-      
-      Cards content:
-      Tab 1:
-      {tab1Content}
-      Tab 2:
-      {tab2Content}
-      Tab 3:
-      {tab3Content}
-      
-      Return the selected card ids in the following format:
-      {
-        "tab1": ["1", "2", "3", "4", "5", "6", "7"],
-        "tab2": ["8", "9", "10", "11", "12", "13", "14"],
-        "tab3": ["15", "16", "17", "18", "19", "20", "21"]
-      }`
-    ],
-    [
-      "human",
-      `{tab1Content}\n{tab2Content}\n{tab3Content}`
-    ]
-  ]);
+  // TODO: how should we handle cases where a tab has less than 7 cards? Get another tab?
 
-  const themeChain = themePromptTemplate.pipe(
-    openai.withStructuredOutput(
-      z.object({
-        tab1: z.array(z.string()).length(7),
-        tab2: z.array(z.string()).length(7),
-        tab3: z.array(z.string()).length(7),
-      })
-    )
-  );
+  // find a theme and select cards from each tab
+  const themeResponse = await generateObject({
+    model: model,
+    schemaName: 'lessonPlan',
+    schemaDescription: 'A curriculum of curated educational content that follows a central theme.',
+    schema: z.object({
+      theme: z.string().describe("A theme to be used for the lesson today."),
+      section1: z.array(z.number()).describe(`5-10 card ids from tab ${cardsByTab[0].tabId} that fit the theme`),
+      section2: z.array(z.number()).describe(`5-10 card ids from tab ${cardsByTab[1].tabId} that fit the theme`),
+      section3: z.array(z.number()).describe(`5-10 card ids from tab ${cardsByTab[2].tabId} that fit the theme.`),
+    }),
+    prompt: `Given the following cards, find a common theme and select relevant card ids from each tab that are most relevant to the theme.
+    Cards from tab ${cardsByTab[0].tabId}: ${cardsByTab[0].cards.map(card => card.id).join(', ')}\n
+    Cards from tab ${cardsByTab[1].tabId}: ${cardsByTab[1].cards.map(card => card.id).join(', ')}\n
+    Cards from tab ${cardsByTab[2].tabId}: ${cardsByTab[2].cards.map(card => card.id).join(', ')}`,
+  });
+
+  const outlineObject = themeResponse.object;
+  // extract the cards from the cardsByTab arrays that are in the outlineObject
+  const section1Cards = cardsByTab[0].cards.filter(card => outlineObject.section1.includes(card.id));
+  const section2Cards = cardsByTab[1].cards.filter(card => outlineObject.section2.includes(card.id));
+  const section3Cards = cardsByTab[2].cards.filter(card => outlineObject.section3.includes(card.id));
 
   if (!cardsByTab[0].cards.length || !cardsByTab[1].cards.length || !cardsByTab[2].cards.length) {
     throw new Error('Not enough cards to generate a script');
   }
-
-  const themeResponse = await themeChain.invoke({
-    tab1Content: cardsByTab[0].cards.map(card => card.text).join('\n'),
-    tab2Content: cardsByTab[1].cards.map(card => card.text).join('\n'),
-    tab3Content: cardsByTab[2].cards.map(card => card.text).join('\n'),
-  });
-
-  const selectedCards = themeResponse;
+  if (outlineObject.theme === null) {
+    throw new Error('Could not find a theme for the lesson');
+  }
 
   // generate script
-  const scriptPromptTemplate = ChatPromptTemplate.fromMessages([
-    [
-      "system",
-      `Generate a podcast script with the following structure:
-      Introduction
-      Section for Tab 1 (includes content from the 7 cards, and 3 new concepts)
-      Section for Tab 2 (includes content from the 7 cards, and 3 new concepts)
-      Section for Tab 3 (includes content from the 7 cards, and 3 new concepts)
-      Conclusion
+  const scriptResponse = await generateObject({
+    model: model,
+    schemaName: 'podscript',
+    schemaDescription: `Pure dialogue for an educational lesson about ${outlineObject.theme} for a podcast.`,
+    schema: z.object({
+      title: z.string().describe(`A funny title for the lesson about ${outlineObject.theme}.`),
+      intro: z.string().describe(`An introduction to the lesson about ${outlineObject.theme}`),
+      section1: z.array(z.string()).describe(`A short summary of the concept of each card from tab ${cardsByTab[0].tabId}`),
+      section2: z.array(z.string()).describe(`A short summary of the concept of each card from tab ${cardsByTab[1].tabId}`),
+      section3: z.array(z.string()).describe(`A short summary of the concept of each card from tab ${cardsByTab[2].tabId}`),
+      conclusion: z.string().describe('A brief summary of the lesson and rapid fire mentions of cards and topics covered during the lesson.'),
+    }),
+    prompt: `Use these cards to make an advanced educational podcast script (pure dialogue for one reader), that will be 5-10 minutes long. 
+    The podcast is called "The Daily Byte" and the theme of today's lesson is ${outlineObject.theme}.
+    For each section, you will need to follow the cards from the tabs associated with that section:
+    Section 1 Cards: ${section1Cards.map(card => `${card.title}: ${card.text}`).join('\n')}\n
+    Section 2 Cards: ${section2Cards.map(card => `${card.title}: ${card.text}`).join('\n')}\n
+    Section 3 Cards: ${section3Cards.map(card => `${card.title}: ${card.text}`).join('\n')}\n
+    `,
+  });    
 
-      Cards content:
-      Tab 1:
-      {tab1Content}
-      Tab 2:
-      {tab2Content}
-      Tab 3:
-      {tab3Content}`
-    ],
-    [
-      "human",
-      `{tab1Content}\n{tab2Content}\n{tab3Content}`
-    ]
-  ]);
+  // add names to the sections based on the Names from the tabs
+  const tabNames = await Promise.all(tabIds.map(tabId => getTabNameFromID(tabId)));
 
-  const scriptChain = scriptPromptTemplate.pipe(openai);
-  const script = await scriptChain.invoke({
-    tab1Content: selectedCards.tab1.map(id => cardsByTab[0].cards.find(card => card.id === id)?.text || '').join('\n'),
-    tab2Content: selectedCards.tab2.map(id => cardsByTab[1].cards.find(card => card.id === id)?.text || '').join('\n'),
-    tab3Content: selectedCards.tab3.map(id => cardsByTab[2].cards.find(card => card.id === id)?.text || '').join('\n'),
-  });
+  console.log(tabNames);
 
-  return script;
+  return {
+    title: scriptResponse.object.title,
+    intro: scriptResponse.object.intro,
+    section1: {
+      tab_id: tabNames[0].id,
+      tab_name: tabNames[0].name,
+      snippets: scriptResponse.object.section1.map((snippet, index) => ({ card_id: outlineObject.section1[index], text: snippet })),
+    },
+    section2: {
+      tab_id: tabNames[1].id,
+      tab_name: tabNames[1].name,
+      snippets: scriptResponse.object.section2.map((snippet, index) => ({ card_id: outlineObject.section2[index], text: snippet })),
+    },
+    section3: {
+      tab_id: tabNames[2].id,
+      tab_name: tabNames[2].name,
+      snippets: scriptResponse.object.section3.map((snippet, index) => ({ card_id: outlineObject.section3[index], text: snippet })),
+    },
+    conclusion: scriptResponse.object.conclusion,
+  };
 }
 
-// run
+// // run
 generateScript().then(script => {
   console.log(script);
 }).catch(error => {
