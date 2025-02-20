@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { generateScript } from "./podscript-writer";
-import { saveAudioToDatabase, createNewAudioRow } from "../api/queries";
+import { saveAudioToDatabase, createNewAudioRow } from "../queries";
 
 
 export async function ScriptToSpeech(scriptObject: Awaited<ReturnType<typeof generateScript>>) {

@@ -1,10 +1,18 @@
 import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+// these get imported in the routes files
+dotenv.config();
+// console.log('DB_HOST:', process.env.DB_HOST);
+// console.log('DB_PORT:', process.env.DB_PORT);
+// console.log('DB_USER:', process.env.DB_USER);
+// console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
+// console.log('DB_NAME:', process.env.DB_NAME);
 const dbConfig = {
-    host: '167.99.8.156',
-    port: 3306,
-    user: 'study_bot_frontend',
-    password: 'yeahBOI',
-    database: 'study_bot',
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT || '3306', 10),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
 };
 export async function getAllTabsAndCards() {
     const connection = await mysql.createConnection(dbConfig);
@@ -73,4 +81,27 @@ export async function getOldestCardsByTab(tabIds) {
     }));
     await connection.end();
     return cardsByTab;
+}
+export async function getTabNameFromID(id) {
+    const connection = await mysql.createConnection(dbConfig);
+    const [rows] = await connection.query(`
+    SELECT *
+    FROM tabs
+    WHERE id = ?
+  `, [id]);
+    await connection.end();
+    return rows[0];
+}
+// still need to make this table in the db: should have an id column for autoinc, and then cols for: title, intro, section1, section2, section3, conclusion, was_played, created_for
+export async function saveAudioToDatabase(rowId, field, buffer) {
+    const connection = await mysql.createConnection(dbConfig);
+    // might need to turn buffer mp3 into base64 blob
+    await connection.query(`UPDATE audio SET ${field} = ? WHERE id = ?`, [buffer, rowId]);
+    await connection.end();
+}
+export async function createNewAudioRow() {
+    const connection = await mysql.createConnection(dbConfig);
+    const [result] = await connection.query('INSERT INTO audio (was_played) VALUES (0)');
+    await connection.end();
+    return result.insertId;
 }

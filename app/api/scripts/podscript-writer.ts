@@ -1,4 +1,4 @@
-import { getTabsWithOldestAverageLastIncluded, getOldestCardsByTab, getTabNameFromID } from '../api/queries';
+import { getTabsWithOldestAverageLastIncluded, getOldestCardsByTab, getTabNameFromID } from '../queries';
 import { openai } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import dotenv from 'dotenv';

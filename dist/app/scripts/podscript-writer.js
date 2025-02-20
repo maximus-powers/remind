@@ -1,59 +1,89 @@
-import { getTabsWithOldestAverageLastIncluded, getOldestCardsByTab } from '../../api/queries';
-import { OpenAI } from "@langchain/openai";
-import { PromptTemplate } from "@langchain/core/prompts";
+import { getTabsWithOldestAverageLastIncluded, getOldestCardsByTab, getTabNameFromID } from '../api/queries';
+import { openai } from '@ai-sdk/openai';
+import { generateObject } from 'ai';
 import dotenv from 'dotenv';
+import { z } from 'zod';
 dotenv.config();
-// query the database to find the 3 tab ids with the oldest average cards "last_included" date
-// query the 25 cards from each tab id with the oldest "last_incldued" dates
-// LLM tasks:
-// 1. Find a theme we can weave with the cards available, return the 21 ids of the cards that are to be included (7 from each tab, chosen for relevance to the theme)
-// 2. Generate the script:
-//// Introduction
-//// Section for Tab 1 (includes content from the 7 cards, and 3 new concepts)
-//// Section for Tab 2 (includes content from the 7 cards, and 3 new concepts)
-//// Section for Tab 3 (includes content from the 7 cards, and 3 new concepts)
-//// Conclusion
-// Function to generate the script
-async function generateScript() {
-    // Step 1: Get the 3 tab ids with the oldest average cards "last_included" date
+const model = openai("gpt-4o", { structuredOutputs: true });
+export async function generateScript() {
+    // get the 3 tab ids with the oldest average cards "last_included" date
     const tabIds = await getTabsWithOldestAverageLastIncluded();
-    // Step 2: Get the 25 cards from each tab id with the oldest "last_included" dates
+    // get the 25 cards from each tab id with the oldest "last_included" dates
     const cardsByTab = await getOldestCardsByTab(tabIds);
-    // Step 3: Find a theme and select 7 cards from each tab
-    const selectedCards = cardsByTab.map(tab => {
-        // Placeholder for theme selection logic
-        return tab.cards.slice(0, 7); // Select the first 7 cards for simplicity
+    // TODO: how should we handle cases where a tab has less than 7 cards? Get another tab?
+    // find a theme and select cards from each tab
+    const themeResponse = await generateObject({
+        model: model,
+        schemaName: 'lessonPlan',
+        schemaDescription: 'A curriculum of curated educational content that follows a central theme.',
+        schema: z.object({
+            theme: z.string().describe("A theme to be used for the lesson today."),
+            section1: z.array(z.number()).describe(`5-10 card ids from tab ${cardsByTab[0].tabId} that fit the theme`),
+            section2: z.array(z.number()).describe(`5-10 card ids from tab ${cardsByTab[1].tabId} that fit the theme`),
+            section3: z.array(z.number()).describe(`5-10 card ids from tab ${cardsByTab[2].tabId} that fit the theme.`),
+        }),
+        prompt: `Given the following cards, find a common theme and select relevant card ids from each tab that are most relevant to the theme.
+    Cards from tab ${cardsByTab[0].tabId}: ${cardsByTab[0].cards.map(card => card.id).join(', ')}\n
+    Cards from tab ${cardsByTab[1].tabId}: ${cardsByTab[1].cards.map(card => card.id).join(', ')}\n
+    Cards from tab ${cardsByTab[2].tabId}: ${cardsByTab[2].cards.map(card => card.id).join(', ')}`,
     });
-    // Step 4: Generate the script using GPT-4
-    const openai = new OpenAI({ apiKey: 'your-openai-api-key', model: 'gpt-4' });
-    const promptTemplate = new PromptTemplate({
-        template: `
-      Generate a podcast script with the following structure:
-      Introduction
-      Section for Tab 1 (includes content from the 7 cards, and 3 new concepts)
-      Section for Tab 2 (includes content from the 7 cards, and 3 new concepts)
-      Section for Tab 3 (includes content from the 7 cards, and 3 new concepts)
-      Conclusion
-
-      Cards content:
-      Tab 1:
-      {{tab1Content}}
-      Tab 2:
-      {{tab2Content}}
-      Tab 3:
-      {{tab3Content}}
+    const outlineObject = themeResponse.object;
+    // extract the cards from the cardsByTab arrays that are in the outlineObject
+    const section1Cards = cardsByTab[0].cards.filter(card => outlineObject.section1.includes(card.id));
+    const section2Cards = cardsByTab[1].cards.filter(card => outlineObject.section2.includes(card.id));
+    const section3Cards = cardsByTab[2].cards.filter(card => outlineObject.section3.includes(card.id));
+    if (!cardsByTab[0].cards.length || !cardsByTab[1].cards.length || !cardsByTab[2].cards.length) {
+        throw new Error('Not enough cards to generate a script');
+    }
+    if (outlineObject.theme === null) {
+        throw new Error('Could not find a theme for the lesson');
+    }
+    // generate script
+    const scriptResponse = await generateObject({
+        model: model,
+        schemaName: 'podscript',
+        schemaDescription: `Pure dialogue for an educational lesson about ${outlineObject.theme} for a podcast.`,
+        schema: z.object({
+            title: z.string().describe(`A funny title for the lesson about ${outlineObject.theme}.`),
+            intro: z.string().describe(`An introduction to the lesson about ${outlineObject.theme}`),
+            section1: z.array(z.string()).describe(`A short summary of the concept of each card from tab ${cardsByTab[0].tabId}`),
+            section2: z.array(z.string()).describe(`A short summary of the concept of each card from tab ${cardsByTab[1].tabId}`),
+            section3: z.array(z.string()).describe(`A short summary of the concept of each card from tab ${cardsByTab[2].tabId}`),
+            conclusion: z.string().describe('A brief summary of the lesson and rapid fire mentions of cards and topics covered during the lesson.'),
+        }),
+        prompt: `Use these cards to make an advanced educational podcast script (pure dialogue for one reader), that will be 5-10 minutes long. 
+    The podcast is called "The Daily Byte" and the theme of today's lesson is ${outlineObject.theme}.
+    For each section, you will need to follow the cards from the tabs associated with that section:
+    Section 1 Cards: ${section1Cards.map(card => `${card.title}: ${card.text}`).join('\n')}\n
+    Section 2 Cards: ${section2Cards.map(card => `${card.title}: ${card.text}`).join('\n')}\n
+    Section 3 Cards: ${section3Cards.map(card => `${card.title}: ${card.text}`).join('\n')}\n
     `,
-        inputVariables: ['tab1Content', 'tab2Content', 'tab3Content'],
     });
-    const chain = promptTemplate.pipe(openai);
-    const script = await chain.invoke({
-        tab1Content: selectedCards[0].map(card => card.text).join('\n'),
-        tab2Content: selectedCards[1].map(card => card.text).join('\n'),
-        tab3Content: selectedCards[2].map(card => card.text).join('\n'),
-    });
-    return script;
+    // add names to the sections based on the Names from the tabs
+    const tabNames = await Promise.all(tabIds.map(tabId => getTabNameFromID(tabId)));
+    console.log(tabNames);
+    return {
+        title: scriptResponse.object.title,
+        intro: scriptResponse.object.intro,
+        section1: {
+            tab_id: tabNames[0].id,
+            tab_name: tabNames[0].name,
+            snippets: scriptResponse.object.section1.map((snippet, index) => ({ card_id: outlineObject.section1[index], text: snippet })),
+        },
+        section2: {
+            tab_id: tabNames[1].id,
+            tab_name: tabNames[1].name,
+            snippets: scriptResponse.object.section2.map((snippet, index) => ({ card_id: outlineObject.section2[index], text: snippet })),
+        },
+        section3: {
+            tab_id: tabNames[2].id,
+            tab_name: tabNames[2].name,
+            snippets: scriptResponse.object.section3.map((snippet, index) => ({ card_id: outlineObject.section3[index], text: snippet })),
+        },
+        conclusion: scriptResponse.object.conclusion,
+    };
 }
-// Run the script generation function
+// // run
 generateScript().then(script => {
     console.log(script);
 }).catch(error => {

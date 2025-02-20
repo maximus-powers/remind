@@ -123,7 +123,7 @@ export async function saveAudioToDatabase(rowId: number, field: string, buffer: 
 
 export async function createNewAudioRow() {
   const connection = await mysql.createConnection(dbConfig);
-  const [result] = await connection.query<ResultSetHeader>('INSERT INTO audio (was_played) VALUES (0)');
+  const [result] = await connection.query<ResultSetHeader>('INSERT INTO audio (audio_data) VALUES (NULL)');
   await connection.end();
   return result.insertId;
 }

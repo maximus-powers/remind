@@ -1,9 +1,7 @@
 import { generateScript } from "./podscript-writer";
 import { ScriptToSpeech } from "./text-to-audio";
 
-async function runMakePodcast() {
+export async function runMakePodcast() {
     const scriptObject = await generateScript();
     await ScriptToSpeech(scriptObject);
 }
-
-runMakePodcast();
