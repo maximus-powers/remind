@@ -49,8 +49,12 @@ export const Hero: React.FC = () => {
 
             const playNext = () => {
                 if (currentIndex < audioElements.length) {
-                    audioElements[currentIndex].play();
-                    audioElements[currentIndex].onended = () => {
+                    const audioElement = audioElements[currentIndex] as HTMLAudioElement;
+                    audioElement.play().catch((error) => {
+                        console.error('Error playing audio:', error);
+                        setPlayStatus('error');
+                    });
+                    audioElement.onended = () => {
                         currentIndex++;
                         playNext();
                     };
@@ -80,7 +84,7 @@ export const Hero: React.FC = () => {
             {playStatus === 'playing' && <p>Playing podcast...</p>}
 
             {Object.keys(audioUrls).map((key) => (
-                <audio key={key} src={audioUrls[key]} />
+                <audio key={key} src={audioUrls[key]} controls />
             ))}
         </div>
     );

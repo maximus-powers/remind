@@ -8,6 +8,7 @@ export async function POST() {
     await runMakePodcast();
     return NextResponse.json({ message: 'Podcast creation completed successfully' });
   } catch (error) {
+    console.error('Error during podcast creation:', error);
     return NextResponse.json({ message: 'Error occurred during podcast creation', error }, { status: 500 });
   }
 }
@@ -21,24 +22,29 @@ export async function GET(request: Request) {
       const signedUrls = await getSignedUrls();
       return NextResponse.json(signedUrls);
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching signed URLs:', error);
       return NextResponse.json({ error: 'Failed to fetch signed URLs' }, { status: 500 });
     }
   } else {
-    const audio_row = await getAudioUrlsFromDatabase();
+    try {
+      const audio_row = await getAudioUrlsFromDatabase();
 
-    console.log("loaded audio row", audio_row);
+      console.log("loaded audio row", audio_row);
 
-    const validAudioFields = ['intro', 'section1', 'section2', 'section3', 'conclusion'];
-    const audioData: { [key: string]: Blob } = {};
+      const validAudioFields = ['intro', 'section1', 'section2', 'section3', 'conclusion'];
+      const audioData: { [key: string]: Blob } = {};
 
-    for (const field of validAudioFields) {
-      if (audio_row[field]) {
-        audioData[field] = audio_row[field];
+      for (const field of validAudioFields) {
+        if (audio_row[field]) {
+          audioData[field] = audio_row[field];
+        }
       }
+      
+      return NextResponse.json(audioData);
+    } catch (error) {
+      console.error('Error fetching audio data:', error);
+      return NextResponse.json({ error: 'Failed to fetch audio data' }, { status: 500 });
     }
-    
-    return NextResponse.json(audioData);
   }
 }
 

@@ -56,12 +56,15 @@ export async function getSignedUrls() {
     const signedUrls: { [key: string]: string } = {};
 
     for (const key in audioUrls) {
-        const params = {
-            Bucket: "study-bot",
-            Key: `${key}.mp3`,
-            Expires: 60 * 60 // 1 hour
-        };
-        signedUrls[key] = s3.getSignedUrl('getObject', params);
+        if (audioUrls[key]) {
+            const params = {
+                Bucket: "study-bot",
+                Key: `${key}.mp3`,
+                Expires: 60 * 60 // 1 hour
+            };
+            signedUrls[key] = s3.getSignedUrl('getObject', params);
+            console.log(`Signed URL for ${key}: ${signedUrls[key]}`);
+        }
     }
 
     return signedUrls;
