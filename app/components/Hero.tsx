@@ -41,21 +41,16 @@ export const Hero: React.FC = () => {
         // we have audioData, a dict with the fields below and their corresponding audio blobs
         const validAudioFields = ['intro', 'section1', 'section2', 'section3', 'conclusion'];
 
-        // load them into audio buffers
+        // load the first audio buffer
         const audioContext = new AudioContext();
         const audioBuffers: { [key: string]: AudioBuffer } = {};
 
-        for (const field of validAudioFields) {
-            if (audioData[field]) {
-                const arrayBuffer = new Uint8Array(audioData[field].data).buffer;
-                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                audioBuffers[field] = audioBuffer;
-            }
+        if (audioData[validAudioFields[0]]) {
+            const arrayBuffer = new Uint8Array(audioData[validAudioFields[0]].data).buffer;
+            audioBuffers[validAudioFields[0]] = await audioContext.decodeAudioData(arrayBuffer);
         }
 
-        // TODO: store in local storage
-
-        // play the audio buffers in order
+        // play the first audio buffer
         const playAudioBuffer = async (buffer: AudioBuffer) => {
             return new Promise<void>((resolve) => {
                 const source = audioContext.createBufferSource(); // default source (default speakers)
@@ -67,7 +62,21 @@ export const Hero: React.FC = () => {
         };
 
         setPlayStatus('playing');
-        for (const field of validAudioFields) {
+        if (audioBuffers[validAudioFields[0]]) {
+            await playAudioBuffer(audioBuffers[validAudioFields[0]]);
+        }
+
+        // load the rest of the audio buffers in parallel while the first one plays
+        await Promise.all(validAudioFields.slice(1).map(async (field) => {
+            if (audioData[field]) {
+                const arrayBuffer = new Uint8Array(audioData[field].data).buffer;
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                audioBuffers[field] = audioBuffer;
+            }
+        }));
+
+        // play the rest of the audio buffers in order
+        for (const field of validAudioFields.slice(1)) {
             if (audioBuffers[field]) {
                 await playAudioBuffer(audioBuffers[field]);
             }

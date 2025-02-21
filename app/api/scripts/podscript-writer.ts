@@ -97,10 +97,3 @@ export async function generateScript() {
     conclusion: scriptResponse.object.conclusion,
   };
 }
-
-// // run
-generateScript().then(script => {
-  console.log(script);
-}).catch(error => {
-  console.error('Error generating script:', error);
-});

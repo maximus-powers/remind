@@ -18,7 +18,7 @@ export async function GET() {
   console.log("loaded audio row", audio_row);
 
   const validAudioFields = ['intro', 'section1', 'section2', 'section3', 'conclusion'];
-  const audioData: { [key: string]: BinaryData } = {};
+  const audioData: { [key: string]: Blob } = {};
 
   for (const field of validAudioFields) {
     if (audio_row[field]) {
