@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export const Hero: React.FC = () => {
     const [status, setStatus] = useState<'idle' | 'processing' | 'error' | 'done'>('idle');
     const [playStatus, setPlayStatus] = useState<'idle' | 'loading' | 'error' | 'playing'>('idle');
+    const [audioUrls, setAudioUrls] = useState<{ [key: string]: string }>({});
 
     const handleGeneratePodcast = async () => {
         setStatus('processing');
@@ -23,66 +24,44 @@ export const Hero: React.FC = () => {
 
     const playPodcast = async () => {
         setPlayStatus('loading');
-        // TODO: check if there are any in local storage already
+        try {
+            const response = await fetch('/api/data/audio?signedUrls=true', { method: 'GET' });
+            const audioData = await response.json();
 
-        const response = await fetch('/api/data/audio', { method: 'GET' });
-        const audioData = await response.json();
+            if (!audioData || Object.keys(audioData).length === 0) {
+                console.error('No audio data received');
+                setPlayStatus('error');
+                return;
+            }
 
-        console.log(audioData);
-        
-        if (!audioData || Object.keys(audioData).length === 0) {
-            console.error('No audio data received');
+            setAudioUrls(audioData);
+            setPlayStatus('playing');
+        } catch (error) {
+            console.error(error);
             setPlayStatus('error');
-            return;
         }
-
-        console.log(audioData);
-
-        // we have audioData, a dict with the fields below and their corresponding audio blobs
-        const validAudioFields = ['intro', 'section1', 'section2', 'section3', 'conclusion'];
-
-        // load the first audio buffer
-        const audioContext = new AudioContext();
-        const audioBuffers: { [key: string]: AudioBuffer } = {};
-
-        if (audioData[validAudioFields[0]]) {
-            const arrayBuffer = new Uint8Array(audioData[validAudioFields[0]].data).buffer;
-            audioBuffers[validAudioFields[0]] = await audioContext.decodeAudioData(arrayBuffer);
-        }
-
-        // play the first audio buffer
-        const playAudioBuffer = async (buffer: AudioBuffer) => {
-            return new Promise<void>((resolve) => {
-                const source = audioContext.createBufferSource(); // default source (default speakers)
-                source.buffer = buffer;
-                source.connect(audioContext.destination);
-                source.start();
-                source.onended = () => resolve();
-            });
-        };
-
-        setPlayStatus('playing');
-        if (audioBuffers[validAudioFields[0]]) {
-            await playAudioBuffer(audioBuffers[validAudioFields[0]]);
-        }
-
-        // load the rest of the audio buffers in parallel while the first one plays
-        await Promise.all(validAudioFields.slice(1).map(async (field) => {
-            if (audioData[field]) {
-                const arrayBuffer = new Uint8Array(audioData[field].data).buffer;
-                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                audioBuffers[field] = audioBuffer;
-            }
-        }));
-
-        // play the rest of the audio buffers in order
-        for (const field of validAudioFields.slice(1)) {
-            if (audioBuffers[field]) {
-                await playAudioBuffer(audioBuffers[field]);
-            }
-        }
-        setPlayStatus('idle');
     };
+
+    useEffect(() => {
+        if (playStatus === 'playing') {
+            const audioElements = document.querySelectorAll('audio');
+            let currentIndex = 0;
+
+            const playNext = () => {
+                if (currentIndex < audioElements.length) {
+                    audioElements[currentIndex].play();
+                    audioElements[currentIndex].onended = () => {
+                        currentIndex++;
+                        playNext();
+                    };
+                } else {
+                    setPlayStatus('idle');
+                }
+            };
+
+            playNext();
+        }
+    }, [playStatus]);
 
     return (
         <div className="card">
@@ -99,6 +78,10 @@ export const Hero: React.FC = () => {
             {playStatus === 'loading' && <p>Loading audio...</p>}
             {playStatus === 'error' && <p>Error occurred while loading audio. Please try again.</p>}
             {playStatus === 'playing' && <p>Playing podcast...</p>}
+
+            {Object.keys(audioUrls).map((key) => (
+                <audio key={key} src={audioUrls[key]} />
+            ))}
         </div>
     );
 };

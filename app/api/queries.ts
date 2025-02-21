@@ -114,12 +114,18 @@ export async function getTabNameFromID(id: number) {
 
 // still need to make this table in the db: should have an id column for autoinc, and then cols for: title, intro, section1, section2, section3, conclusion, was_played, created_for
 
-export async function saveAudioToDatabase(rowId: number, field: string, buffer: Buffer) {
+export async function updateAudioUrlInDatabase(rowId: number, field: string, fileId: string) {
   const connection = await mysql.createConnection(dbConfig);
-  // might need to turn buffer mp3 into base64 blob
-  await connection.query(`UPDATE audio SET ${field} = ? WHERE id = ?`, [buffer, rowId]);
+  await connection.query(`UPDATE audio SET ${field} = ? WHERE id = ?`, [fileId, rowId]);
   await connection.end();
 }
+
+// export async function saveAudioToDatabase(rowId: number, field: string, buffer: Buffer) {
+//   const connection = await mysql.createConnection(dbConfig);
+//   // might need to turn buffer mp3 into base64 blob
+//   await connection.query(`UPDATE audio SET ${field} = ? WHERE id = ?`, [buffer, rowId]);
+//   await connection.end();
+// }
 
 export async function createNewAudioRow() {
   const connection = await mysql.createConnection(dbConfig);
@@ -134,10 +140,10 @@ export async function updateLastIncludedDate(cardId: number) {
   await connection.end();
 }
 
-export async function getMostRecentAudioBlob() {
+export async function getAudioUrlsFromDatabase() {
   const connection = await mysql.createConnection(dbConfig);
   const [rows] = await connection.query<RowDataPacket[]>(`
-    SELECT *
+    SELECT intro, section1, section2, section3, conclusion
     FROM audio
     ORDER BY created_at DESC
     LIMIT 1
