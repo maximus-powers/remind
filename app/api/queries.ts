@@ -123,7 +123,25 @@ export async function saveAudioToDatabase(rowId: number, field: string, buffer: 
 
 export async function createNewAudioRow() {
   const connection = await mysql.createConnection(dbConfig);
-  const [result] = await connection.query<ResultSetHeader>('INSERT INTO audio (audio_data) VALUES (NULL)');
+  const [result] = await connection.query<ResultSetHeader>('INSERT INTO audio (was_played, intro, section1, section2, section3, conclusion) VALUES (0, NULL, NULL, NULL, NULL, NULL)');
   await connection.end();
   return result.insertId;
+}
+
+export async function updateLastIncludedDate(cardId: number) {
+  const connection = await mysql.createConnection(dbConfig);
+  await connection.query('UPDATE cards SET last_included = NOW() WHERE id = ?', [cardId]);
+  await connection.end();
+}
+
+export async function getMostRecentAudioBlob() {
+  const connection = await mysql.createConnection(dbConfig);
+  const [rows] = await connection.query<RowDataPacket[]>(`
+    SELECT *
+    FROM audio
+    ORDER BY created_at DESC
+    LIMIT 1
+  `);
+  await connection.end();
+  return rows[0];
 }

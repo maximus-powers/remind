@@ -1,4 +1,4 @@
-import { getTabsWithOldestAverageLastIncluded, getOldestCardsByTab, getTabNameFromID } from '../queries';
+import { getTabsWithOldestAverageLastIncluded, getOldestCardsByTab, getTabNameFromID, updateLastIncludedDate } from '../queries';
 import { openai } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import dotenv from 'dotenv';
@@ -71,8 +71,11 @@ export async function generateScript() {
   // add names to the sections based on the Names from the tabs
   const tabNames = await Promise.all(tabIds.map(tabId => getTabNameFromID(tabId)));
 
-  console.log(tabNames);
-
+  // update the last_included field to the current date
+  for (const card of section1Cards) {
+    await updateLastIncludedDate(card.id);
+  }
+  
   return {
     title: scriptResponse.object.title,
     intro: scriptResponse.object.intro,

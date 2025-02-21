@@ -8,16 +8,6 @@ export async function ScriptToSpeech(scriptObject: Awaited<ReturnType<typeof gen
 
     const rowId = await createNewAudioRow();
 
-    // tts title
-    const titleText = scriptObject.title;
-    const titleMp3 = await openai.audio.speech.create({
-        model: "tts-1-hd",
-        voice: "alloy",
-        input: titleText,
-    });
-    const titleBuffer = Buffer.from(await titleMp3.arrayBuffer());
-    await saveAudioToDatabase(rowId, 'title', titleBuffer);
-
     // tts the intro and outro sections
     for (const introOutroKey of ['intro', 'conclusion']) {
         const fullSectionText = "Intro:" + "\n" + scriptObject[introOutroKey as 'intro' | 'conclusion'];
@@ -34,7 +24,7 @@ export async function ScriptToSpeech(scriptObject: Awaited<ReturnType<typeof gen
     // tts for each section
     for (const sectionKey of ['section1', 'section2', 'section3']) {
         const section = scriptObject[sectionKey as 'section1' | 'section2' | 'section3'];
-        const fullSectionText = section.tab_name + "\n" + section.snippets.join("\n");
+        const fullSectionText = section.tab_name + "\n" + section.snippets.map(snippet => snippet.text).join("\n");
 
         // open ai generate code
         const mp3 = await openai.audio.speech.create({
