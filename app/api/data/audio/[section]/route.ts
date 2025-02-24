@@ -10,7 +10,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: 'Section to speech conversion completed successfully' });
     } catch (error) {
         console.error('Error during section to speech conversion:', error);
-        return NextResponse.json({ message: 'Error occurred during section to speech conversion', error }, { status: 500 });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        return NextResponse.json({ message: 'Error occurred during section to speech conversion', error: errorMessage }, { status: 500 });
     }
 }
 
