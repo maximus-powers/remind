@@ -1,13 +1,15 @@
 "use client";
 
+import PodcastGenerator from "@/components/podcast-generator"
 import React from 'react';
 import TabsAndCards from './components/TabsAndCards';
-import Hero from './components/Hero';
+import AudioPlayerCard from "../components/audio-player-card"
 
 const Home = () => {
   return (
     <>
-      <Hero />
+      <PodcastGenerator/>
+      <AudioPlayerCard />
       <TabsAndCards />
     </>
   );
