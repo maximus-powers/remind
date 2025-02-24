@@ -34,6 +34,7 @@ export const Hero: React.FC = () => {
                 return;
             }
 
+            console.log('Audio URLs:', audioData); 
             setAudioUrls(audioData);
             setPlayStatus('playing');
         } catch (error) {

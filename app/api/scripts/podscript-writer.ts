@@ -1,13 +1,14 @@
 import { getTabsWithOldestAverageLastIncluded, getOldestCardsByTab, getTabNameFromID, updateLastIncludedDate } from '../queries';
-import { openai } from '@ai-sdk/openai';
+import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-dotenv.config();
-const model = openai("gpt-4o", { structuredOutputs: true })
-
 export async function generateScript() {
+  dotenv.config();
+  const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  const model = openai("gpt-4o", { structuredOutputs: true })
+
   // get the 3 tab ids with the oldest average cards "last_included" date
   const tabIds = await getTabsWithOldestAverageLastIncluded();
 
