@@ -54,11 +54,11 @@ export async function generateScript() {
     schemaDescription: `Pure dialogue for an educational lesson about ${outlineObject.theme} for a podcast.`,
     schema: z.object({
       title: z.string().describe(`A funny title for the lesson about ${outlineObject.theme}.`),
-      intro: z.string().describe(`An introduction to the lesson about ${outlineObject.theme}`),
+      // intro: z.string().describe(`An introduction to the lesson about ${outlineObject.theme}`),
       section1: z.array(z.string()).describe(`A short summary of the concept of each card from tab ${cardsByTab[0].tabId}`),
       section2: z.array(z.string()).describe(`A short summary of the concept of each card from tab ${cardsByTab[1].tabId}`),
       section3: z.array(z.string()).describe(`A short summary of the concept of each card from tab ${cardsByTab[2].tabId}`),
-      conclusion: z.string().describe('A brief summary of the lesson and rapid fire mentions of cards and topics covered during the lesson.'),
+      // conclusion: z.string().describe('A brief summary of the lesson and rapid fire mentions of cards and topics covered during the lesson.'),
     }),
     prompt: `Use these cards to make an advanced educational podcast script (pure dialogue for one reader), that will be 5-10 minutes long. 
     The podcast is called "The Daily Byte" and the theme of today's lesson is ${outlineObject.theme}.
@@ -76,10 +76,12 @@ export async function generateScript() {
   for (const card of section1Cards) {
     await updateLastIncludedDate(card.id);
   }
+
+  // TODO: save to db return true/false
   
   return {
     title: scriptResponse.object.title,
-    intro: scriptResponse.object.intro,
+    // intro: scriptResponse.object.intro,
     section1: {
       tab_id: tabNames[0].id,
       tab_name: tabNames[0].name,
@@ -95,6 +97,6 @@ export async function generateScript() {
       tab_name: tabNames[2].name,
       snippets: scriptResponse.object.section3.map((snippet, index) => ({ card_id: outlineObject.section3[index], text: snippet })),
     },
-    conclusion: scriptResponse.object.conclusion,
+    // conclusion: scriptResponse.object.conclusion,
   };
 }

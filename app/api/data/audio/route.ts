@@ -1,12 +1,19 @@
 import { NextResponse } from 'next/server';
-import { runMakePodcast } from '../../scripts/make-podcast';
-import { getAudioUrlsFromDatabase } from '../../queries';
+import { generateScript } from '../../scripts/podcast-writer';
+import { createNewAudioRow, getAudioUrlsFromDatabase, saveScriptToDB } from '../../queries';
 import { getSignedUrls } from '../../scripts/text-to-audio';
+
+export const maxDuration = 60;
+
+// new functiont hat runs the generate podcast script (not the runMakePodcast function)
+
 
 export async function POST() {
   try {
-    await runMakePodcast();
-    return NextResponse.json({ message: 'Podcast creation completed successfully' });
+    const rowId = await createNewAudioRow(); // TODO: make sure this is actually returning the rowId
+    const scriptObj = await generateScript();
+    await saveScriptToDB(scriptObj, rowId);
+    return NextResponse.json({ message: 'Podcast creation completed successfully', script: scriptObj, rowId: rowId });
   } catch (error) {
     console.error('Error during podcast creation:', error);
     return NextResponse.json({ message: 'Error occurred during podcast creation', error }, { status: 500 });
@@ -31,7 +38,7 @@ export async function GET(request: Request) {
 
       console.log("loaded audio row", audio_row);
 
-      const validAudioFields = ['intro', 'section1', 'section2', 'section3', 'conclusion'];
+      const validAudioFields = ['section1', 'section2', 'section3']; // 'intro',  'conclusion'
       const audioData: { [key: string]: Blob } = {};
 
       for (const field of validAudioFields) {

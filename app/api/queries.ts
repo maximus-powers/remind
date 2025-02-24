@@ -129,7 +129,7 @@ export async function updateAudioUrlInDatabase(rowId: number, field: string, fil
 
 export async function createNewAudioRow() {
   const connection = await mysql.createConnection(dbConfig);
-  const [result] = await connection.query<ResultSetHeader>('INSERT INTO audio (was_played, intro, section1, section2, section3, conclusion) VALUES (0, NULL, NULL, NULL, NULL, NULL)');
+  const [result] = await connection.query<ResultSetHeader>('INSERT INTO audio (was_played, intro, section1, section2, section3, conclusion, script) VALUES (0, NULL, NULL, NULL, NULL, NULL, NULL)');
   await connection.end();
   return result.insertId;
 }
@@ -143,11 +143,18 @@ export async function updateLastIncludedDate(cardId: number) {
 export async function getAudioUrlsFromDatabase() {
   const connection = await mysql.createConnection(dbConfig);
   const [rows] = await connection.query<RowDataPacket[]>(`
-    SELECT intro, section1, section2, section3, conclusion
+    SELECT section1, section2, section3
     FROM audio
     ORDER BY created_at DESC
     LIMIT 1
-  `);
+  `); // intro, conclusion
   await connection.end();
   return rows[0];
+}
+
+export async function saveScriptToDB(script: object, rowId: number) {
+  const connection = await mysql.createConnection(dbConfig);
+  const scriptJson = JSON.stringify(script);
+  await connection.query('UPDATE audio SET script = ? WHERE id = ?', [scriptJson, rowId]);
+  await connection.end();
 }

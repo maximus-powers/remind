@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { generateScript } from "./podscript-writer";
+import { generateScript } from "./podcast-writer";
 import { createNewAudioRow, updateAudioUrlInDatabase, getAudioUrlsFromDatabase } from "../queries";
 import AWS from 'aws-sdk';
 
@@ -25,17 +25,17 @@ export async function ScriptToSpeech(scriptObject: Awaited<ReturnType<typeof gen
     const openai = new OpenAI();
     const rowId = await createNewAudioRow();
 
-    for (const introOutroKey of ['intro', 'conclusion']) {
-        const fullSectionText = "Intro:" + "\n" + scriptObject[introOutroKey as 'intro' | 'conclusion'];
-        const mp3 = await openai.audio.speech.create({
-            model: "tts-1-hd",
-            voice: "alloy",
-            input: fullSectionText,
-        });
-        const introOutroBuffer = Buffer.from(await mp3.arrayBuffer());
-        const fileUrl = await uploadToBackblaze(introOutroBuffer, `${introOutroKey}.mp3`);
-        await updateAudioUrlInDatabase(rowId, introOutroKey, fileUrl);
-    }
+    // for (const introOutroKey of ['intro', 'conclusion']) {
+    //     const fullSectionText = "Intro:" + "\n" + scriptObject[introOutroKey as 'intro' | 'conclusion'];
+    //     const mp3 = await openai.audio.speech.create({
+    //         model: "tts-1-hd",
+    //         voice: "alloy",
+    //         input: fullSectionText,
+    //     });
+    //     const introOutroBuffer = Buffer.from(await mp3.arrayBuffer());
+    //     const fileUrl = await uploadToBackblaze(introOutroBuffer, `${introOutroKey}.mp3`);
+    //     await updateAudioUrlInDatabase(rowId, introOutroKey, fileUrl);
+    // }
 
     for (const sectionKey of ['section1', 'section2', 'section3']) {
         const section = scriptObject[sectionKey as 'section1' | 'section2' | 'section3'];
@@ -49,6 +49,21 @@ export async function ScriptToSpeech(scriptObject: Awaited<ReturnType<typeof gen
         const fileUrl = await uploadToBackblaze(sectionBuffer, `${sectionKey}.mp3`);
         await updateAudioUrlInDatabase(rowId, sectionKey, fileUrl);
     }
+}
+
+export async function sectionToSpeech(section: Awaited<ReturnType<typeof generateScript>>['section1'], sectionKey: string, rowId: number) {
+    const openai = new OpenAI();
+
+    const fullSectionText = section.tab_name + "\n" + section.snippets.map(snippet => snippet.text).join("\n");
+    const mp3 = await openai.audio.speech.create({
+        model: "tts-1-hd",
+        voice: "alloy",
+        input: fullSectionText,
+    });
+    
+    const sectionBuffer = Buffer.from(await mp3.arrayBuffer());
+    const fileUrl = await uploadToBackblaze(sectionBuffer, `${sectionKey}.mp3`);
+    await updateAudioUrlInDatabase(rowId, sectionKey, fileUrl);
 }
 
 export async function getSignedUrls() {

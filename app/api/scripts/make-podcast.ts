@@ -1,4 +1,4 @@
-import { generateScript } from "./podscript-writer";
+import { generateScript } from "./podcast-writer";
 import { ScriptToSpeech } from "./text-to-audio";
 
 export async function runMakePodcast() {

@@ -11,6 +11,24 @@ export const Hero: React.FC = () => {
             const response = await fetch('/api/data/audio', { method: 'POST' });
             const result = await response.json();
             if (response.ok) {
+                const script = result.script;
+                const rowId = result.rowId;
+                const sections = ['section1', 'section2', 'section3'];
+
+                for (const section of sections) {
+                    const sectionResponse = await fetch(`/api/data/audio/${section}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ section: script[section], sectionKey: section, rowId }),
+                    });
+
+                    if (!sectionResponse.ok) {
+                        throw new Error(`Error processing section: ${section}`);
+                    }
+                }
+
                 setStatus('done');
             } else {
                 console.error(result.error);
