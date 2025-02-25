@@ -76,13 +76,13 @@ export default function PodcastGenerator() {
   }
 
   return (
-    <div className="max-w-md mx-auto p-4 space-y-4">
+    <div className="mx-auto p-1">
       <Button onClick={handleGenerate} disabled={isGenerating} className="w-full">
         Generate Podcast
       </Button>
       {isGenerating && (
-        <div className="space-y-2">
-          <Progress value={progress} className="w-full" />
+        <div className="">
+          <Progress value={progress} className="w-full my-2" />
           <p className="text-center text-sm text-gray-500">{progress.toFixed(0)}% - {statusMessage}</p>
         </div>
       )}
