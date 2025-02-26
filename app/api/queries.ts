@@ -158,3 +158,17 @@ export async function saveScriptToDB(script: object, rowId: number) {
   await connection.query('UPDATE audio SET script = ? WHERE id = ?', [scriptJson, rowId]);
   await connection.end();
 }
+
+export async function getUserByEmail(email: string) {
+  const connection = await mysql.createConnection(dbConfig);
+  const [rows] = await connection.query<RowDataPacket[]>('SELECT * FROM users WHERE email = ?', [email]);
+  await connection.end();
+  return rows[0];
+}
+
+export async function addUserByEmail(email: string) {
+  const connection = await mysql.createConnection(dbConfig);
+  const [result] = await connection.query<ResultSetHeader>('INSERT INTO users (email) VALUES (?)', [email]);
+  await connection.end();
+  return { id: result.insertId, email };
+}
