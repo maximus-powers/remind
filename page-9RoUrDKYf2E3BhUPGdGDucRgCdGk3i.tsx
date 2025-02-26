@@ -1,8 +1,8 @@
 "use client"
 
 import PodcastGenerator from "@/components/podcast-generator"
-import TabsAndCards from "../components/tabs-and-cards"
-import AudioPlayerCard from "../components/audio-player-card"
+import TabsAndCards from "@/components/tabs-and-cards"
+import AudioPlayerCard from "@/components/audio-player-card"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 const Home = () => {
