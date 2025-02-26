@@ -93,15 +93,54 @@ export async function getTabNameFromID(id) {
     return rows[0];
 }
 // still need to make this table in the db: should have an id column for autoinc, and then cols for: title, intro, section1, section2, section3, conclusion, was_played, created_for
-export async function saveAudioToDatabase(rowId, field, buffer) {
+export async function updateAudioUrlInDatabase(rowId, field, fileId) {
     const connection = await mysql.createConnection(dbConfig);
-    // might need to turn buffer mp3 into base64 blob
-    await connection.query(`UPDATE audio SET ${field} = ? WHERE id = ?`, [buffer, rowId]);
+    await connection.query(`UPDATE audio SET ${field} = ? WHERE id = ?`, [fileId, rowId]);
     await connection.end();
 }
+// export async function saveAudioToDatabase(rowId: number, field: string, buffer: Buffer) {
+//   const connection = await mysql.createConnection(dbConfig);
+//   // might need to turn buffer mp3 into base64 blob
+//   await connection.query(`UPDATE audio SET ${field} = ? WHERE id = ?`, [buffer, rowId]);
+//   await connection.end();
+// }
 export async function createNewAudioRow() {
     const connection = await mysql.createConnection(dbConfig);
-    const [result] = await connection.query('INSERT INTO audio (was_played) VALUES (0)');
+    const [result] = await connection.query('INSERT INTO audio (was_played, intro, section1, section2, section3, conclusion, script) VALUES (0, NULL, NULL, NULL, NULL, NULL, NULL)');
     await connection.end();
     return result.insertId;
+}
+export async function updateLastIncludedDate(cardId) {
+    const connection = await mysql.createConnection(dbConfig);
+    await connection.query('UPDATE cards SET last_included = NOW() WHERE id = ?', [cardId]);
+    await connection.end();
+}
+export async function getAudioUrlsFromDatabase() {
+    const connection = await mysql.createConnection(dbConfig);
+    const [rows] = await connection.query(`
+    SELECT section1, section2, section3
+    FROM audio
+    ORDER BY created_at DESC
+    LIMIT 1
+  `); // intro, conclusion
+    await connection.end();
+    return rows[0];
+}
+export async function saveScriptToDB(script, rowId) {
+    const connection = await mysql.createConnection(dbConfig);
+    const scriptJson = JSON.stringify(script);
+    await connection.query('UPDATE audio SET script = ? WHERE id = ?', [scriptJson, rowId]);
+    await connection.end();
+}
+export async function getUserByEmail(email) {
+    const connection = await mysql.createConnection(dbConfig);
+    const [rows] = await connection.query('SELECT * FROM users WHERE email = ?', [email]);
+    await connection.end();
+    return rows[0];
+}
+export async function addUserByEmail(email) {
+    const connection = await mysql.createConnection(dbConfig);
+    const [result] = await connection.query('INSERT INTO users (email) VALUES (?)', [email]);
+    await connection.end();
+    return { id: result.insertId, email };
 }
