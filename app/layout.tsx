@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Remembery",
+  title: "reMind",
   description: "A daily podcast/curriculum made from YOUR notes.",
 };
 
