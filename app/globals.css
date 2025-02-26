@@ -119,3 +119,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+.black-slider .slider-track {
+  background-color: black;
+}
+.black-slider .slider-thumb {
+  background-color: black;
+}

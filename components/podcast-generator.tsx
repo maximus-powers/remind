@@ -81,7 +81,7 @@ export default function PodcastGenerator() {
   }
 
   return (
-    <div className="mx-auto p-1">
+    <div className="mx-auto p-1 mb-5">
       <Button onClick={handleGenerate} disabled={isGenerating} className="w-full">
         Generate Podcast
       </Button>

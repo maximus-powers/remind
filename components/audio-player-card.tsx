@@ -105,13 +105,13 @@ export const AudioPlayerCard: React.FC = () => {
           </Button>
         </div>
       ) : (
-        <Card className="w-full max-w-md mx-auto bg-white shadow-lg rounded-lg overflow-hidden mt-4">
+        <Card className="w-full max-w-lg mx-auto bg-white shadow-lg rounded-lg overflow-hidden mt-4 mb-2">
           <CardContent className="p-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-semibold text-gray-800">Now Playing</h2>
+                <h2 className="text-2xl font-semibold text-gray-800">Your Daily Byte</h2>
                 <span className="text-sm text-gray-500">
-                  Section {currentTrack + 1} of {audioUrls.length}:
+                  Section {currentTrack + 1} of {audioUrls.length} 
                 </span>
               </div>
 
@@ -137,7 +137,7 @@ export const AudioPlayerCard: React.FC = () => {
               </div>
 
               <div className="flex items-center space-x-2">
-                <Volume2 className="h-4 w-4 text-gray-500" />
+                <Volume2 className="h-4 w-4 text-blue-500" />
                 <Slider value={[volume]} max={1} step={0.01} onValueChange={handleVolumeChange} className="w-full" />
               </div>
             </div>
