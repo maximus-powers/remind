@@ -21,6 +21,7 @@ export const AudioPlayerCard: React.FC = () => {
     try {
       const response = await fetch("/api/data/audio?signedUrls=true", { method: "GET" })
       const audioData = await response.json()
+      console.log(response)
       if (!audioData || Object.keys(audioData).length === 0) {
         throw new Error("No audio data received")
       }
@@ -51,11 +52,33 @@ export const AudioPlayerCard: React.FC = () => {
   }
 
   const handlePrevious = () => {
-    setCurrentTrack((prev) => (prev > 0 ? prev - 1 : audioUrls.length - 1))
+    setCurrentTrack((prev) => {
+      const newTrack = prev > 0 ? prev - 1 : audioUrls.length - 1
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.src = audioUrls[newTrack]
+        audioRef.current.load()
+        audioRef.current.onloadeddata = () => {
+          audioRef.current?.play()
+        }
+      }
+      return newTrack
+    })
   }
 
   const handleNext = () => {
-    setCurrentTrack((prev) => (prev < audioUrls.length - 1 ? prev + 1 : 0))
+    setCurrentTrack((prev) => {
+      const newTrack = prev < audioUrls.length - 1 ? prev + 1 : 0
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.src = audioUrls[newTrack]
+        audioRef.current.load()
+        audioRef.current.onloadeddata = () => {
+          audioRef.current?.play()
+        }
+      }
+      return newTrack
+    })
   }
 
   const handleTimeUpdate = () => {
@@ -88,7 +111,7 @@ export const AudioPlayerCard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-semibold text-gray-800">Now Playing</h2>
                 <span className="text-sm text-gray-500">
-                  Section {currentTrack + 1} of {audioUrls.length}
+                  Section {currentTrack + 1} of {audioUrls.length}:
                 </span>
               </div>
 

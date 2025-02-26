@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { generateScript } from "./podcast-writer";
-import { createNewAudioRow, updateAudioUrlInDatabase, getAudioUrlsFromDatabase } from "../queries";
+import { createNewAudioRow, updateAudioUrlInDatabase, getAudioUrlsFromDatabase, updateLastIncludedDate } from "../queries";
 import AWS from 'aws-sdk';
 
 const s3 = new AWS.S3({
@@ -75,6 +75,10 @@ export async function sectionToSpeech(section: Awaited<ReturnType<typeof generat
         const sectionBuffer = Buffer.from(await mp3.arrayBuffer());
         const fileUrl = await uploadToBackblaze(sectionBuffer, `${sectionKey}.mp3`);
         await updateAudioUrlInDatabase(rowId, sectionKey, fileUrl);
+        // update the last_included date in the cards table
+        for (const snippet of section.snippets) {
+            await updateLastIncludedDate(snippet.card_id);
+        }
     } catch (error) {
         console.error(`Error processing section ${sectionKey}:`, error);
         throw error;

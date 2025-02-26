@@ -7,7 +7,6 @@ export const maxDuration = 60;
 
 // new functiont hat runs the generate podcast script (not the runMakePodcast function)
 
-
 export async function POST() {
   try {
     const rowId = await createNewAudioRow(); // TODO: make sure this is actually returning the rowId
@@ -46,6 +45,8 @@ export async function GET(request: Request) {
           audioData[field] = audio_row[field];
         }
       }
+
+      // TODO: also return the scriptObj so that we can use the tab names in the audio player card
       
       return NextResponse.json(audioData);
     } catch (error) {

@@ -174,16 +174,26 @@ export default function TabsAndCards() {
           </Button>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tab.cards?.map((card, cardIndex) => (
-              <Card key={card.id} className="relative">
-                <CardContent className="pt-6">
-                  <Input
-                    value={card.title}
-                    onKeyDown={(e) => handleCardKeyDown(e, tabIndex, cardIndex)}
-                    onBlur={() => updateCardContentHandler(tabIndex, cardIndex)}
-                    onChange={(e) => handleInputChange(e, tabIndex, cardIndex, "title")}
-                    placeholder="Title"
-                    className="mb-2"
-                  />
+              <Card key={card.id}>
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Input
+                      value={card.title}
+                      onKeyDown={(e) => handleCardKeyDown(e, tabIndex, cardIndex)}
+                      onBlur={() => updateCardContentHandler(tabIndex, cardIndex)}
+                      onChange={(e) => handleInputChange(e, tabIndex, cardIndex, "title")}
+                      placeholder="Title"
+                      className="flex-grow"
+                    />
+                    <Button
+                      onClick={() => deleteExistingCardHandler(tabIndex, cardIndex)}
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive flex-shrink-0"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                   <Textarea
                     value={card.text}
                     onKeyDown={(e) => handleCardKeyDown(e, tabIndex, cardIndex)}
@@ -192,14 +202,6 @@ export default function TabsAndCards() {
                     placeholder="Text"
                     rows={3}
                   />
-                  <Button
-                    onClick={() => deleteExistingCardHandler(tabIndex, cardIndex)}
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
                 </CardContent>
               </Card>
             ))}

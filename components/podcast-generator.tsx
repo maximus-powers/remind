@@ -42,7 +42,7 @@ export default function PodcastGenerator() {
         const sections = ['section1', 'section2', 'section3']
 
         for (const section of sections) {
-          setStatusMessage(`Converting script to audio for ${section}`)
+            setStatusMessage(`Converting script to audio for ${script[section].tab_name}`)
           const sectionResponse = await fetch(`/api/data/audio/${section}`, {
             method: 'POST',
             headers: {
@@ -55,11 +55,16 @@ export default function PodcastGenerator() {
             throw new Error(`Error processing section: ${section}`)
           }
 
-          setProgress(100 / 1 + sections.length)
+          if (section === 'section1') {
+            setProgress(50)
+          } else if (section === 'section2') {
+            setProgress(75)
+          } else {
+            setProgress(100)
+            setStatus('done')
+          }
         }
 
-        setStatus('done')
-        setProgress(100)
         setStatusMessage('Podcast generated successfully!')
       } else {
         console.error(result.error)
