@@ -5,7 +5,7 @@ import TabsAndCards from "../components/tabs-and-cards"
 import AudioPlayerCard from "../components/audio-player-card"
 import { ThemeToggle } from "@/components/theme-toggle"
 
-const Page = () => {
+const Home = () => {
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-end mb-4">
@@ -18,5 +18,5 @@ const Page = () => {
   )
 }
 
-export default Page
+export default Home
 

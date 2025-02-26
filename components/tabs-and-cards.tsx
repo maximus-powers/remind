@@ -138,7 +138,7 @@ export default function TabsAndCards() {
   }
 
   return (
-    <div className="p-1 bg-white text-black dark:bg-gray-900 dark:text-white">
+    <div className="p-1 bg-white text-black dark:bg-background dark:text-white">
       <div className="flex flex-wrap gap-2 mb-4 justify-center">
         {tabs.map((tab, index) => (
           <button
