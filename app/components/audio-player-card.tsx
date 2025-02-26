@@ -3,9 +3,9 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { Play, Pause, SkipForward, SkipBack, Volume2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/app/components/ui/button"
+import { Slider } from "@/app/components/ui/slider"
+import { Card, CardContent } from "@/app/components/ui/card"
 
 export const AudioPlayerCard: React.FC = () => {
   const [audioUrls, setAudioUrls] = useState<string[]>([])

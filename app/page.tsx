@@ -1,21 +1,42 @@
 "use client"
 
-import PodcastGenerator from "@/components/podcast-generator"
-import TabsAndCards from "../components/tabs-and-cards"
-import AudioPlayerCard from "../components/audio-player-card"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { signIn } from "next-auth/react"
+import { useState, useEffect } from "react"
+import PodcastGenerator from "@/app/components/podcast-generator"
+import TabsAndCards from "@/app/components/tabs-and-cards"
+import AudioPlayerCard from "@/app/components/audio-player-card"
+import { ThemeToggle } from "@/app/components/theme-toggle"
+import { signIn, signOut, useSession } from "next-auth/react"
 
 const Page = () => {
+  const { status } = useSession()
+  const [isSignedIn, setIsSignedIn] = useState(false)
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      setIsSignedIn(true)
+      // TODO: add a function that gets the email from the session and checks if the user has a row in the db (it should create one if not)
+    } else {
+      setIsSignedIn(false)
+    }
+  }, [status])
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
-        <button className="" onClick={() => signIn("google")}>Sign in with Google</button>
+        {isSignedIn ? (
+          <button className="" onClick={() => signOut()}>Sign out</button>
+        ) : (
+          <button className="" onClick={() => signIn("google")}>Sign in with Google</button>
+        )}
         <ThemeToggle />
       </div>
-      <AudioPlayerCard />
-      <PodcastGenerator />
-      <TabsAndCards />
+      {isSignedIn && (
+        <>
+          <AudioPlayerCard />
+          <PodcastGenerator />
+          <TabsAndCards />
+        </>
+      )}
     </div>
   )
 }
