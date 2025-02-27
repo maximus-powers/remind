@@ -18,11 +18,17 @@ const dbConfig = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  connectTimeout: 10000, // Increase the connection timeout to 10 seconds
 };
 
-export async function getAllTabsAndCards() {
+export async function getAllTabsAndCards(userEmail: string) {
   const connection = await mysql.createConnection(dbConfig);
-  const [tabs] = await connection.query<RowDataPacket[]>('SELECT * FROM tabs');
+  const [tabs] = await connection.query<RowDataPacket[]>(`
+    SELECT tabs.id, tabs.name
+    FROM tabs
+    JOIN users ON tabs.user_id = users.id
+    WHERE users.email = ?
+  `, [userEmail]);
   const tabsWithCards = await Promise.all(
     (tabs as { id: number; name: string }[]).map(async (tab) => {
       const [cards] = await connection.query<RowDataPacket[]>('SELECT * FROM cards WHERE tab_id = ?', [tab.id]);
@@ -33,9 +39,12 @@ export async function getAllTabsAndCards() {
   return tabsWithCards;
 }
 
-export async function addNewTab(name: string) {
+export async function addNewTab(name: string, userEmail: string) {
   const connection = await mysql.createConnection(dbConfig);
-  const [result] = await connection.query<ResultSetHeader>('INSERT INTO tabs (name) VALUES (?)', [name]);
+  const [result] = await connection.query<ResultSetHeader>(`
+    INSERT INTO tabs (name, user_id)
+    SELECT ?, id FROM users WHERE email = ?
+  `, [name, userEmail]);
   await connection.end();
   return { id: result.insertId, name, cards: [] };
 }
@@ -52,9 +61,12 @@ export async function updateTabNameById(id: number, name: string) {
   await connection.end();
 }
 
-export async function addNewCard(title: string, text: string, tabId: number) {
+export async function addNewCard(title: string, text: string, tabId: number, userEmail: string) {
   const connection = await mysql.createConnection(dbConfig);
-  const [result] = await connection.query<ResultSetHeader>('INSERT INTO cards (title, text, tab_id) VALUES (?, ?, ?)', [title, text, tabId]);
+  const [result] = await connection.query<ResultSetHeader>(`
+    INSERT INTO cards (title, text, tab_id, user_id)
+    SELECT ?, ?, ?, id FROM users WHERE email = ?
+  `, [title, text, tabId, userEmail]);
   await connection.end();
   return { id: result.insertId, title, text };
 }
@@ -116,7 +128,8 @@ export async function getTabNameFromID(id: number) {
 
 export async function updateAudioUrlInDatabase(rowId: number, field: string, fileId: string) {
   const connection = await mysql.createConnection(dbConfig);
-  await connection.query(`UPDATE audio SET ${field} = ? WHERE id = ?`, [fileId, rowId]);
+  const msg = await connection.query(`UPDATE audio SET ${field} = ? WHERE id = ?`, [fileId, rowId]);
+  console.log('msg:', msg);
   await connection.end();
 }
 
@@ -127,9 +140,12 @@ export async function updateAudioUrlInDatabase(rowId: number, field: string, fil
 //   await connection.end();
 // }
 
-export async function createNewAudioRow() {
+export async function createNewAudioRow(userEmail: string) {
   const connection = await mysql.createConnection(dbConfig);
-  const [result] = await connection.query<ResultSetHeader>('INSERT INTO audio (was_played, intro, section1, section2, section3, conclusion, script) VALUES (0, NULL, NULL, NULL, NULL, NULL, NULL)');
+  const [result] = await connection.query<ResultSetHeader>(`
+    INSERT INTO audio (was_played, intro, section1, section2, section3, conclusion, script, user_id)
+    SELECT 0, NULL, NULL, NULL, NULL, NULL, NULL, id FROM users WHERE email = ?
+  `, [userEmail]);
   await connection.end();
   return result.insertId;
 }
@@ -140,14 +156,16 @@ export async function updateLastIncludedDate(cardId: number) {
   await connection.end();
 }
 
-export async function getAudioUrlsFromDatabase() {
+export async function getAudioUrlsFromDatabase(userEmail: string) {
   const connection = await mysql.createConnection(dbConfig);
   const [rows] = await connection.query<RowDataPacket[]>(`
     SELECT section1, section2, section3
     FROM audio
-    ORDER BY created_at DESC
+    JOIN users ON audio.user_id = users.id
+    WHERE users.email = ?
+    ORDER BY audio.created_at DESC
     LIMIT 1
-  `); // intro, conclusion
+  `, [userEmail]);
   await connection.end();
   return rows[0];
 }

@@ -6,19 +6,39 @@ import TabsAndCards from "@/app/components/tabs-and-cards"
 import AudioPlayerCard from "@/app/components/audio-player-card"
 import { ThemeToggle } from "@/app/components/theme-toggle"
 import { signIn, signOut, useSession } from "next-auth/react"
+import type { User } from "next-auth"
 
 const Page = () => {
-  const { status } = useSession()
+  const { status, data: session } = useSession()
   const [isSignedIn, setIsSignedIn] = useState(false)
 
   useEffect(() => {
     if (status === "authenticated") {
       setIsSignedIn(true)
-      // TODO: add a function that gets the email from the session and checks if the user has a row in the db (it should create one if not)
+      storeUserEmail(session)
     } else {
       setIsSignedIn(false)
     }
-  }, [status])
+  }, [status, session])
+
+  const storeUserEmail = async (session: { user?: User }) => {
+    const email = session?.user?.email
+    if (email) {
+      localStorage.setItem("userEmail", email)
+      try {
+        await fetch('/api/data/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        });
+      } catch (error) {
+        console.error('Failed to store user email:', error);
+      }
+    }
+    console.log(email);
+  }
 
   return (
     <div className="container mx-auto p-4">

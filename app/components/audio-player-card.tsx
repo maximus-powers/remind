@@ -19,7 +19,10 @@ export const AudioPlayerCard: React.FC = () => {
   const fetchAudioUrls = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("/api/data/audio?signedUrls=true", { method: "GET" })
+      const userEmail = localStorage.getItem("userEmail");
+      const response = await fetch(`/api/data/audio?signedUrls=true&userEmail=${userEmail}`, {
+        method: "GET",
+      });
       const audioData = await response.json()
       console.log(response)
       if (!audioData || Object.keys(audioData).length === 0) {

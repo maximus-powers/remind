@@ -32,7 +32,14 @@ export default function PodcastGenerator() {
     setStatus('processing')
     setStatusMessage('Writing lesson script')
     try {
-      const response = await fetch('/api/data/audio', { method: 'POST' })
+      const userEmail = localStorage.getItem("userEmail");
+      const response = await fetch('/api/data/audio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userEmail }),
+      });
       const result = await response.json()
       if (response.ok) {
         setProgress(25)
@@ -42,13 +49,13 @@ export default function PodcastGenerator() {
         const sections = ['section1', 'section2', 'section3']
 
         for (const section of sections) {
-            setStatusMessage(`Converting script to audio for ${script[section].tab_name}`)
+          setStatusMessage(`Converting script to audio for ${script[section].tab_name}`)
           const sectionResponse = await fetch(`/api/data/audio/${section}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ section: script[section], sectionKey: section, rowId }),
+            body: JSON.stringify({ section: script[section], sectionKey: section, rowId}),
           })
 
           if (!sectionResponse.ok) {

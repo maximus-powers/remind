@@ -3,9 +3,9 @@ import { sectionToSpeech } from "../../../scripts/text-to-audio";
 
 export const maxDuration = 60;
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
     try {
-        const { section, sectionKey, rowId } = await request.json();
+        const { section, sectionKey, rowId } = await req.json();
         await sectionToSpeech(section, sectionKey, rowId);
         return NextResponse.json({ message: 'Section to speech conversion completed successfully' });
     } catch (error) {

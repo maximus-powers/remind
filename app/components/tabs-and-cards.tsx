@@ -39,7 +39,8 @@ export default function TabsAndCards() {
   useEffect(() => {
     const fetchTabsAndCards = async () => {
       const baseUrl = window.location.origin
-      const response = await fetch(`${baseUrl}/api/data/tabs`)
+      const userEmail = localStorage.getItem("userEmail");
+      const response = await fetch(`${baseUrl}/api/data/tabs?userEmail=${userEmail}`)
       const tabsWithCards = await response.json()
       const reversedTabsWithCards = tabsWithCards.map((tab: TabType) => ({
         ...tab,
@@ -52,10 +53,11 @@ export default function TabsAndCards() {
 
   const addNewTabHandler = async () => {
     const baseUrl = window.location.origin
+    const userEmail = localStorage.getItem("userEmail");
     const response = await fetch(`${baseUrl}/api/data/tabs`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: `Tab ${tabs.length + 1}` }),
+      body: JSON.stringify({ name: `Tab ${tabs.length + 1}`, userEmail }),
     })
     const newTab = await response.json()
     setTabs([...tabs, newTab])
@@ -85,10 +87,11 @@ export default function TabsAndCards() {
 
   const addNewCardHandler = async (tabIndex: number) => {
     const baseUrl = window.location.origin
+    const userEmail = localStorage.getItem("userEmail");
     const response = await fetch(`${baseUrl}/api/data/cards`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "", text: "", tabId: tabs[tabIndex].id }),
+      body: JSON.stringify({ title: "", text: "", tabId: tabs[tabIndex].id, userEmail }),
     })
     const newCard = await response.json()
     const newTabs = [...tabs]

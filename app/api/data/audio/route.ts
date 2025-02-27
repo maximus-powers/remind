@@ -5,11 +5,13 @@ import { getSignedUrls } from '../../scripts/text-to-audio';
 
 export const maxDuration = 60;
 
-// new functiont hat runs the generate podcast script (not the runMakePodcast function)
-
-export async function POST() {
+export async function POST(req: Request) {
   try {
-    const rowId = await createNewAudioRow(); // TODO: make sure this is actually returning the rowId
+    const { userEmail } = await req.json();
+    if (!userEmail) {
+      throw new Error('User email is required');
+    }
+    const rowId = await createNewAudioRow(userEmail);
     const scriptObj = await generateScript();
     await saveScriptToDB(scriptObj, rowId);
     return NextResponse.json({ message: 'Podcast creation completed successfully', script: scriptObj, rowId: rowId });
@@ -19,13 +21,17 @@ export async function POST() {
   }
 }
 
-export async function GET(request: Request) {
-  const url = new URL(request.url);
+export async function GET(req: Request) {
+  const url = new URL(req.url);
   const fetchSignedUrls = url.searchParams.get('signedUrls') === 'true';
+  const userEmail = url.searchParams.get('userEmail');
+  if (!userEmail) {
+    return NextResponse.json({ error: 'User email is required' }, { status: 400 });
+  }
 
   if (fetchSignedUrls) {
     try {
-      const signedUrls = await getSignedUrls();
+      const signedUrls = await getSignedUrls(userEmail);
       return NextResponse.json(signedUrls);
     } catch (error) {
       console.error('Error fetching signed URLs:', error);
@@ -33,7 +39,7 @@ export async function GET(request: Request) {
     }
   } else {
     try {
-      const audio_row = await getAudioUrlsFromDatabase();
+      const audio_row = await getAudioUrlsFromDatabase(userEmail);
 
       console.log("loaded audio row", audio_row);
 
