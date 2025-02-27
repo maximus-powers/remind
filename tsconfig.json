@@ -32,7 +32,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/scripts/text-to-audio.ts",
-    "app/api/scripts/podscript-writer.ts",
+    "app/lib/scripts/podscript-writer.ts",
     "app/api/**/*.ts" // Ensure the api directory is included
   ],
   "exclude": ["node_modules"]

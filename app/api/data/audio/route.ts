@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { generateScript } from '../../scripts/podcast-writer';
-import { createNewAudioRow, getAudioUrlsFromDatabase, saveScriptToDB } from '../../queries';
-import { getSignedUrls } from '../../scripts/text-to-audio';
+import { generateScript } from '../../../lib/scripts/podcast-writer';
+import { createNewAudioRow, getAudioUrlsFromDatabase, saveScriptToDB } from '../../../lib/queries';
+import { getSignedUrls } from '../../../lib/scripts/text-to-audio';
 
 export const maxDuration = 60;
 

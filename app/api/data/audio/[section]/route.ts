@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sectionToSpeech } from "../../../scripts/text-to-audio";
+import { sectionToSpeech } from "../../../../lib/scripts/text-to-audio";
 
 export const maxDuration = 60;
 

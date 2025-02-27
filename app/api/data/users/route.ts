@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserByEmail, addUserByEmail } from '@/app/api/queries';
+import { getUserByEmail, addUserByEmail } from '@/app/lib/queries';
 
 export async function POST(req: NextRequest) {
   const { email } = await req.json();

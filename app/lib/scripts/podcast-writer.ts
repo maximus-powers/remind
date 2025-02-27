@@ -7,7 +7,7 @@ import { z } from 'zod';
 export async function generateScript() {
   dotenv.config();
   const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY })
-  const model = openai("gpt-4o", { structuredOutputs: true })
+  const model = openai("gpt-4o", { structuredOutputs: true });
 
   // get the 3 tab ids with the oldest average cards "last_included" date
   const tabIds = await getTabsWithOldestAverageLastIncluded();
@@ -60,13 +60,14 @@ export async function generateScript() {
       section3: z.array(z.string()).describe(`A short summary of the concept of each card from tab ${cardsByTab[2].tabId}`),
       // conclusion: z.string().describe('A brief summary of the lesson and rapid fire mentions of cards and topics covered during the lesson.'),
     }),
-    prompt: `Use these cards to make an advanced educational podcast script (pure dialogue for one reader), that will be 5-10 minutes long. 
+    prompt: `Use these cards to make an advanced educational podcast script (pure dialogue for one reader), that will be 5-10 minutes long. Do not provide analysis or commentary, just the content from the cards in a list format.
     The podcast is called "The Daily Byte" and the theme of today's lesson is ${outlineObject.theme}.
     For each section, you will need to follow the cards from the tabs associated with that section:
     Section 1 Cards: ${section1Cards.map(card => `${card.title}: ${card.text}`).join('\n')}\n
     Section 2 Cards: ${section2Cards.map(card => `${card.title}: ${card.text}`).join('\n')}\n
     Section 3 Cards: ${section3Cards.map(card => `${card.title}: ${card.text}`).join('\n')}\n
     `,
+    temperature: 0.9,
   });    
 
   // add names to the sections based on the Names from the tabs

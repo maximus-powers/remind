@@ -1,7 +1,7 @@
 // QUERIES FOR FULL CARDS TABLE
 
 import { NextRequest, NextResponse } from 'next/server';
-import { addNewCard } from '../../queries';
+import { addNewCard } from '../../../lib/queries';
 
 // add card (to tab)
 export async function POST(req: NextRequest) {

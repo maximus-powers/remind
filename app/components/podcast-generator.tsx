@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/app/components/ui/button"
 import { Progress } from "@/app/components/ui/progress"
 
-export default function PodcastGenerator() {
+export default function PodcastGenerator({ onPodcastGenerated }: { onPodcastGenerated: () => void }) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [progress, setProgress] = useState(0)
   const [status, setStatus] = useState<'idle' | 'processing' | 'error' | 'done'>('idle')
@@ -73,6 +73,7 @@ export default function PodcastGenerator() {
         }
 
         setStatusMessage('Podcast generated successfully!')
+        onPodcastGenerated()
       } else {
         console.error(result.error)
         setStatus('error')
@@ -89,7 +90,7 @@ export default function PodcastGenerator() {
 
   return (
     <div className="mx-auto p-1 mb-5">
-      <Button onClick={handleGenerate} disabled={isGenerating} className="w-full">
+      <Button onClick={handleGenerate} disabled={isGenerating} className="w-full bg-primary">
         Generate Podcast
       </Button>
       {isGenerating && (
@@ -99,7 +100,7 @@ export default function PodcastGenerator() {
         </div>
       )}
       {status === 'error' && <p className="text-center text-sm text-red-500">Error occurred. Please try again.</p>}
-      {status === 'done' && <p className="text-center text-sm text-green-500">Podcast generated successfully!</p>}
+      {status === 'done' && <p className="text-center text-sm text-green-500 mt-3">Podcast generated successfully!</p>}
     </div>
   )
 }

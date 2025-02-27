@@ -1,7 +1,7 @@
 // QUERIES FOR FULL TABS TABLE
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllTabsAndCards, addNewTab } from '../../queries';
+import { getAllTabsAndCards, addNewTab } from '../../../lib/queries';
 
 export async function GET(req: NextRequest) {
   const userEmail = req.nextUrl.searchParams.get('userEmail') || '';

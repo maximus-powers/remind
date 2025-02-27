@@ -1,7 +1,7 @@
 // THESE ARE QUERY FUNCTIONS FOR A SPECIFIC CARD
 
 import { NextRequest, NextResponse } from 'next/server';
-import { deleteCardById, updateCardContentById } from '../../../queries';
+import { deleteCardById, updateCardContentById } from '../../../../lib/queries';
 
 // delete the card
 export async function DELETE(req: NextRequest) {
