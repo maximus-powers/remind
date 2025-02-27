@@ -13,7 +13,6 @@ import { Skeleton } from "@/app/components/ui/skeleton"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { Play, SkipForward, SkipBack, Volume2, Plus, Trash2 } from "lucide-react"
 import Image from "next/image"
-// import gifImage from "@/public/hero-gif.gif"
 
 const Page = () => {
   const { status, data: session } = useSession()
@@ -98,25 +97,27 @@ const Page = () => {
 
 
         {/* how it works */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-12">
-            <div className="flex flex-col items-center text-center p-6 rounded-lg border bg-card">
-              <div className="h-12 w-12 mb-4 rounded-full bg-primary/20 flex items-center justify-center">
+            <div className="flex justify-center">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-12">
+              <div className="flex flex-col items-center text-center p-6 rounded-lg border bg-card">
+                <div className="h-12 w-12 mb-4 rounded-full bg-primary/20 flex items-center justify-center">
                 <Plus className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Organize Your Facts</h3>
+                <p className="text-muted-foreground">Create tabs and cards to organize your favorite facts.</p>
               </div>
-              <h3 className="text-xl font-semibold">Organize Your Facts</h3>
-              <p className="text-muted-foreground">Create tabs and cards to organize your favorite facts.</p>
-            </div>
-            <div className="flex flex-col items-center text-center p-6 rounded-lg border bg-card">
-              <div className="h-12 w-12 mb-4 rounded-full bg-primary/20 flex items-center justify-center">
+              <div className="flex flex-col items-center text-center p-6 rounded-lg border bg-card">
+                <div className="h-12 w-12 mb-4 rounded-full bg-primary/20 flex items-center justify-center">
                 <Play className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Generate Podcasts</h3>
+                <p className="text-muted-foreground">Facts are curated based on which were least-recently included in a podcast, and which fit a podcast&apos;s theme.</p>
               </div>
-              <h3 className="text-xl font-semibold">Generate Podcasts</h3>
-              <p className="text-muted-foreground">Facts are curated based on which were least-recently included in a podcast, and which fit a podcast&apos;s theme. </p>
+              </div>
             </div>
-          </div>
-          <hr className="my-8" />
+            <hr className="my-8" />
 
-          {/* preview */}
+            {/* preview */}
           <div className="text-center">
             <h2 className="text-3xl font-bold">Preview</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-5">
