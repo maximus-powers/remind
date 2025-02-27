@@ -1,23 +1,23 @@
 {
   "version": 2,
-    "routes": [
-      {
-        "src": "/components/(.*)",
-        "dest": "/src/components/$1"
-      },
-      {
-        "src": "/api/:path*",
-        "dest": "/app/api/:path*"
-      },
-      {
-        "src": "/api/data/cards/(.*)",
-        "methods": ["GET", "POST", "PUT", "DELETE"],
-        "dest": "/api/data/cards/$1"
-      },
-      {
-        "src": "/api/data/tabs/(.*)",
-        "methods": ["GET", "POST", "PUT", "DELETE"],
-        "dest": "/api/data/tabs/$1"
-      }
-    ]
+  "routes": [
+    {
+      "src": "/components/(.*)",
+      "dest": "/src/components/$1"
+    },
+    {
+      "src": "/api/:path*",
+      "dest": "/app/api/:path*"
+    },
+    {
+      "src": "/api/data/cards/(.*)",
+      "methods": ["GET", "POST", "PUT", "DELETE"],
+      "dest": "/api/data/cards/$1"
+    },
+    {
+      "src": "/api/data/tabs/(.*)",
+      "methods": ["GET", "POST", "PUT", "DELETE"],
+      "dest": "/api/data/tabs/$1"
+    }
+  ]
 }

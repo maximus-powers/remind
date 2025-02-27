@@ -13,7 +13,7 @@ import { Skeleton } from "@/app/components/ui/skeleton"
 import { Card, CardContent } from "@/app/components/ui/card"
 import { Play, SkipForward, SkipBack, Volume2, Plus, Trash2 } from "lucide-react"
 import Image from "next/image"
-import gifImage from "@/public/hero-gif.gif"
+// import gifImage from "@/public/hero-gif.gif"
 
 const Page = () => {
   const { status, data: session } = useSession()
@@ -80,7 +80,7 @@ const Page = () => {
         <div className="mt-8 space-y-8">
           {/* hero section */}
           <div className="text-center space-y-4">
-            <Image src={gifImage} alt="Hero GIF" width={300} height={200} className="mx-auto" />
+            <Image src="/hero-gif.gif" alt="Hero GIF" width={300} height={200} className="mx-auto" />
             <h1 className="text-4xl font-bold">Remember More</h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-5">
               Create personal podcasts to remind you of facts you&apos;ve added to your knowledge base.
