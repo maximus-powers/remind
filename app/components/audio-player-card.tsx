@@ -111,7 +111,10 @@ export const AudioPlayerCard: React.FC = () => {
         </div>
       ) : audioUrls.length === 0 ? (
         <div className="flex justify-center items-center w-full mx-auto p-1">
-          <p>Add some cards and generate your first podcast.</p>
+          <p>
+            Add at least 3 tabs (and at least one card to each) to generate your
+            first podcast.
+          </p>
         </div>
       ) : (
         <Card className="w-full max-w-lg mx-auto bg-background shadow-lg rounded-lg overflow-hidden mt-4 mb-2">
