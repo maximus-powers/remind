@@ -9,13 +9,13 @@ import { generateObject } from 'ai';
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-export async function generateScript() {
+export async function generateScript(userEmail: string) {
   dotenv.config();
   const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY });
   const model = openai('gpt-4o', { structuredOutputs: true });
 
   // get the 3 tab ids with the oldest average cards "last_included" date
-  const tabIds = await getTabsWithOldestAverageLastIncluded();
+  const tabIds = await getTabsWithOldestAverageLastIncluded(userEmail);
 
   // get the 25 cards from each tab id with the oldest "last_included" dates
   const cardsByTab = await getOldestCardsByTab(tabIds);

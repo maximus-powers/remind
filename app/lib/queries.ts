@@ -96,15 +96,21 @@ export async function updateCardContentById(
   await connection.end();
 }
 
-export async function getTabsWithOldestAverageLastIncluded() {
+export async function getTabsWithOldestAverageLastIncluded(userEmail: string) {
   const connection = await mysql.createConnection(dbConfig);
-  const [rows] = await connection.query<RowDataPacket[]>(`
-    SELECT tab_id
+  const [rows] = await connection.query<RowDataPacket[]>(
+    `
+    SELECT cards.tab_id
     FROM cards
-    GROUP BY tab_id
-    ORDER BY AVG(last_included) ASC
+    JOIN tabs ON cards.tab_id = tabs.id
+    JOIN users ON tabs.user_id = users.id
+    WHERE users.email = ?
+    GROUP BY cards.tab_id
+    ORDER BY AVG(cards.last_included) ASC
     LIMIT 3
-  `);
+  `,
+    [userEmail]
+  );
   await connection.end();
   return rows.map((row) => row.tab_id);
 }

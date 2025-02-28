@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       throw new Error('User email is required');
     }
     const rowId = await createNewAudioRow(userEmail);
-    const scriptObj = await generateScript();
+    const scriptObj = await generateScript(userEmail);
     await saveScriptToDB(scriptObj, rowId);
     return NextResponse.json({
       message: 'Podcast creation completed successfully',
