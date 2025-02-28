@@ -6,11 +6,11 @@ export async function POST(req: NextRequest) {
   if (!email) {
     return NextResponse.json({ error: 'Donde esta email' }, { status: 400 });
   }
-    const user = await getUserByEmail(email);
-    if (user) {    
-        return NextResponse.json(user);
-    } else {
-      const newUser = await addUserByEmail(email);
-      return NextResponse.json(newUser);
-    }
+  const user = await getUserByEmail(email);
+  if (user) {
+    return NextResponse.json(user);
+  } else {
+    const newUser = await addUserByEmail(email);
+    return NextResponse.json(newUser);
+  }
 }

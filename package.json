@@ -1,5 +1,5 @@
 {
-  "name": "study_bot",
+  "name": "remind-notes",
   "version": "0.1.0",
   "type": "module",
   "private": true,
@@ -10,7 +10,9 @@
     "lint": "next lint",
     "deploy": "vercel --prod",
     "prepare": "tsc",
-    "write-pod-script": "npm run prepare && mkdir -p dist && node dist/app/scripts/podscript-writer.js"
+    "write-pod-script": "npm run prepare && mkdir -p dist && node dist/app/scripts/podscript-writer.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.1.12",
@@ -56,6 +58,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.1.5",
     "postcss": "^8",
+    "prettier": "^3.5.2",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

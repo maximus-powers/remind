@@ -1,8 +1,8 @@
-"use client";
-import { useState, useEffect } from "react";
-import { Button } from "@/app/components/ui/button";
-import { Progress } from "@/app/components/ui/progress";
-export default function PodcastGenerator() {
+'use client';
+import { useState, useEffect } from 'react';
+import { Button } from '@/app/components/ui/button';
+import { Progress } from '@/app/components/ui/progress';
+export default function PodcastGenerator({ onPodcastGenerated, }) {
     const [isGenerating, setIsGenerating] = useState(false);
     const [progress, setProgress] = useState(0);
     const [status, setStatus] = useState('idle');
@@ -27,7 +27,14 @@ export default function PodcastGenerator() {
         setStatus('processing');
         setStatusMessage('Writing lesson script');
         try {
-            const response = await fetch('/api/data/audio', { method: 'POST' });
+            const userEmail = localStorage.getItem('userEmail');
+            const response = await fetch('/api/data/audio', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userEmail }),
+            });
             const result = await response.json();
             if (response.ok) {
                 setProgress(25);
@@ -42,7 +49,11 @@ export default function PodcastGenerator() {
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ section: script[section], sectionKey: section, rowId }),
+                        body: JSON.stringify({
+                            section: script[section],
+                            sectionKey: section,
+                            rowId,
+                        }),
                     });
                     if (!sectionResponse.ok) {
                         throw new Error(`Error processing section: ${section}`);
@@ -59,6 +70,7 @@ export default function PodcastGenerator() {
                     }
                 }
                 setStatusMessage('Podcast generated successfully!');
+                onPodcastGenerated();
             }
             else {
                 console.error(result.error);
@@ -76,14 +88,20 @@ export default function PodcastGenerator() {
         }
     };
     return (<div className="mx-auto p-1 mb-5">
-      <Button onClick={handleGenerate} disabled={isGenerating} className="w-full">
+      <Button onClick={handleGenerate} disabled={isGenerating} className="w-full bg-primary">
         Generate Podcast
       </Button>
       {isGenerating && (<div className="">
           <Progress value={progress} className="w-full my-2"/>
-          <p className="text-center text-sm text-gray-500">{progress.toFixed(0)}% - {statusMessage}</p>
+          <p className="text-center text-sm text-gray-500">
+            {progress.toFixed(0)}% - {statusMessage}
+          </p>
         </div>)}
-      {status === 'error' && <p className="text-center text-sm text-red-500">Error occurred. Please try again.</p>}
-      {status === 'done' && <p className="text-center text-sm text-green-500">Podcast generated successfully!</p>}
+      {status === 'error' && (<p className="text-center text-sm text-red-500">
+          Error occurred. Please try again.
+        </p>)}
+      {status === 'done' && (<p className="text-center text-sm text-green-500 mt-3">
+          Podcast generated successfully!
+        </p>)}
     </div>);
 }

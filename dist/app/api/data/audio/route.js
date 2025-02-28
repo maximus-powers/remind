@@ -1,27 +1,38 @@
 import { NextResponse } from 'next/server';
-import { generateScript } from '../../scripts/podcast-writer';
-import { createNewAudioRow, getAudioUrlsFromDatabase, saveScriptToDB } from '../../queries';
-import { getSignedUrls } from '../../scripts/text-to-audio';
+import { generateScript } from '../../../lib/scripts/podcast-writer';
+import { createNewAudioRow, getAudioUrlsFromDatabase, saveScriptToDB, } from '../../../lib/queries';
+import { getSignedUrls } from '../../../lib/scripts/text-to-audio';
 export const maxDuration = 60;
-// new functiont hat runs the generate podcast script (not the runMakePodcast function)
-export async function POST() {
+export async function POST(req) {
     try {
-        const rowId = await createNewAudioRow(); // TODO: make sure this is actually returning the rowId
+        const { userEmail } = await req.json();
+        if (!userEmail) {
+            throw new Error('User email is required');
+        }
+        const rowId = await createNewAudioRow(userEmail);
         const scriptObj = await generateScript();
         await saveScriptToDB(scriptObj, rowId);
-        return NextResponse.json({ message: 'Podcast creation completed successfully', script: scriptObj, rowId: rowId });
+        return NextResponse.json({
+            message: 'Podcast creation completed successfully',
+            script: scriptObj,
+            rowId: rowId,
+        });
     }
     catch (error) {
         console.error('Error during podcast creation:', error);
         return NextResponse.json({ message: 'Error occurred during podcast creation', error }, { status: 500 });
     }
 }
-export async function GET(request) {
-    const url = new URL(request.url);
+export async function GET(req) {
+    const url = new URL(req.url);
     const fetchSignedUrls = url.searchParams.get('signedUrls') === 'true';
+    const userEmail = url.searchParams.get('userEmail');
+    if (!userEmail) {
+        return NextResponse.json({ error: 'User email is required' }, { status: 400 });
+    }
     if (fetchSignedUrls) {
         try {
-            const signedUrls = await getSignedUrls();
+            const signedUrls = await getSignedUrls(userEmail);
             return NextResponse.json(signedUrls);
         }
         catch (error) {
@@ -31,8 +42,8 @@ export async function GET(request) {
     }
     else {
         try {
-            const audio_row = await getAudioUrlsFromDatabase();
-            console.log("loaded audio row", audio_row);
+            const audio_row = await getAudioUrlsFromDatabase(userEmail);
+            console.log('loaded audio row', audio_row);
             const validAudioFields = ['section1', 'section2', 'section3']; // 'intro',  'conclusion'
             const audioData = {};
             for (const field of validAudioFields) {

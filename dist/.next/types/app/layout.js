@@ -6,17 +6,17 @@ checkFields();
 checkFields();
 // Check the arguments and return type of the generateMetadata function
 if ('generateMetadata' in entry) {
-    checkFields();
-    checkFields();
+  checkFields();
+  checkFields();
 }
 // Check the arguments and return type of the generateViewport function
 if ('generateViewport' in entry) {
-    checkFields();
-    checkFields();
+  checkFields();
+  checkFields();
 }
 // Check the arguments and return type of the generateStaticParams function
 if ('generateStaticParams' in entry) {
-    checkFields();
-    checkFields();
+  checkFields();
+  checkFields();
 }
-function checkFields() { }
+function checkFields() {}

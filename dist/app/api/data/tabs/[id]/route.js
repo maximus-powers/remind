@@ -1,6 +1,6 @@
 // THESE ARE QUERY FUNCTIONS FOR A SPECIFIC TAB
 import { NextResponse } from 'next/server';
-import { deleteTabById, updateTabNameById } from '../../../queries';
+import { deleteTabById, updateTabNameById } from '../../../../lib/queries';
 // delete tab
 export async function DELETE(req) {
     try {

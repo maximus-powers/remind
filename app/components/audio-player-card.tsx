@@ -1,103 +1,107 @@
-"use client"
+'use client';
 
-import type React from "react"
-import { useState, useEffect, useRef } from "react"
-import { Play, Pause, SkipForward, SkipBack, Volume2 } from "lucide-react"
-import { Button } from "@/app/components/ui/button"
-import { Slider } from "@/app/components/ui/slider"
-import { Card, CardContent } from "@/app/components/ui/card"
+import type React from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Play, Pause, SkipForward, SkipBack, Volume2 } from 'lucide-react';
+import { Button } from '@/app/components/ui/button';
+import { Slider } from '@/app/components/ui/slider';
+import { Card, CardContent } from '@/app/components/ui/card';
 
 export const AudioPlayerCard: React.FC = () => {
-  const [audioUrls, setAudioUrls] = useState<string[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTrack, setCurrentTrack] = useState(0)
-  const [progress, setProgress] = useState(0)
-  const [volume, setVolume] = useState(1)
-  const audioRef = useRef<HTMLAudioElement>(null)
+  const [audioUrls, setAudioUrls] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const fetchAudioUrls = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const userEmail = localStorage.getItem("userEmail");
-      const response = await fetch(`/api/data/audio?signedUrls=true&userEmail=${userEmail}`, {
-        method: "GET",
-      });
-      const audioData = await response.json()
-      console.log(response)
+      const userEmail = localStorage.getItem('userEmail');
+      const response = await fetch(
+        `/api/data/audio?signedUrls=true&userEmail=${userEmail}`,
+        {
+          method: 'GET',
+        }
+      );
+      const audioData = await response.json();
+      console.log(response);
       if (!audioData || Object.keys(audioData).length === 0) {
-        throw new Error("No audio data received")
+        throw new Error('No audio data received');
       }
-      setAudioUrls(Object.values(audioData))
-      setIsLoading(false)
+      setAudioUrls(Object.values(audioData));
+      setIsLoading(false);
     } catch (error) {
-      console.error("Error fetching audio URLs:", error)
-      setIsLoading(false)
+      console.error('Error fetching audio URLs:', error);
+      setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchAudioUrls()
-  }, [])
+    fetchAudioUrls();
+  }, []);
 
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
-        audioRef.current.play()
+        audioRef.current.play();
       } else {
-        audioRef.current.pause()
+        audioRef.current.pause();
       }
     }
-  }, [isPlaying])
+  }, [isPlaying]);
 
   const togglePlayPause = () => {
-    setIsPlaying(!isPlaying)
-  }
+    setIsPlaying(!isPlaying);
+  };
 
   const handlePrevious = () => {
     setCurrentTrack((prev) => {
-      const newTrack = prev > 0 ? prev - 1 : audioUrls.length - 1
+      const newTrack = prev > 0 ? prev - 1 : audioUrls.length - 1;
       if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.src = audioUrls[newTrack]
-        audioRef.current.load()
+        audioRef.current.pause();
+        audioRef.current.src = audioUrls[newTrack];
+        audioRef.current.load();
         audioRef.current.onloadeddata = () => {
-          audioRef.current?.play()
-        }
+          audioRef.current?.play();
+        };
       }
-      return newTrack
-    })
-  }
+      return newTrack;
+    });
+  };
 
   const handleNext = () => {
     setCurrentTrack((prev) => {
-      const newTrack = prev < audioUrls.length - 1 ? prev + 1 : 0
+      const newTrack = prev < audioUrls.length - 1 ? prev + 1 : 0;
       if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.src = audioUrls[newTrack]
-        audioRef.current.load()
+        audioRef.current.pause();
+        audioRef.current.src = audioUrls[newTrack];
+        audioRef.current.load();
         audioRef.current.onloadeddata = () => {
-          audioRef.current?.play()
-        }
+          audioRef.current?.play();
+        };
       }
-      return newTrack
-    })
-  }
+      return newTrack;
+    });
+  };
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
-      const progress = (audioRef.current.currentTime / audioRef.current.duration) * 100
-      setProgress(progress)
+      const progress =
+        (audioRef.current.currentTime / audioRef.current.duration) * 100;
+      setProgress(progress);
     }
-  }
+  };
 
   const handleVolumeChange = (newVolume: number[]) => {
-    const volumeValue = newVolume[0]
-    setVolume(volumeValue)
+    const volumeValue = newVolume[0];
+    setVolume(volumeValue);
     if (audioRef.current) {
-      audioRef.current.volume = volumeValue
+      audioRef.current.volume = volumeValue;
     }
-  }
+  };
 
   return (
     <>
@@ -114,9 +118,11 @@ export const AudioPlayerCard: React.FC = () => {
           <CardContent className="p-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-semibold text-primary">Your daily byte</h2>
+                <h2 className="text-2xl font-semibold text-primary">
+                  Your daily byte
+                </h2>
                 <span className="text-sm text-gray-500">
-                  section {currentTrack + 1} of {audioUrls.length} 
+                  section {currentTrack + 1} of {audioUrls.length}
                 </span>
               </div>
 
@@ -134,7 +140,11 @@ export const AudioPlayerCard: React.FC = () => {
                   <SkipBack className="h-4 w-4" />
                 </Button>
                 <Button variant="outline" size="icon" onClick={togglePlayPause}>
-                  {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                  {isPlaying ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
                 </Button>
                 <Button variant="outline" size="icon" onClick={handleNext}>
                   <SkipForward className="h-4 w-4" />
@@ -143,16 +153,26 @@ export const AudioPlayerCard: React.FC = () => {
 
               <div className="flex items-center space-x-2">
                 <Volume2 className="h-4 w-4 text-blue-500" />
-                <Slider value={[volume]} max={1} step={0.01} onValueChange={handleVolumeChange} className="w-full" />
+                <Slider
+                  value={[volume]}
+                  max={1}
+                  step={0.01}
+                  onValueChange={handleVolumeChange}
+                  className="w-full"
+                />
               </div>
             </div>
           </CardContent>
-          <audio ref={audioRef} src={audioUrls[currentTrack]} onTimeUpdate={handleTimeUpdate} onEnded={handleNext} />
+          <audio
+            ref={audioRef}
+            src={audioUrls[currentTrack]}
+            onTimeUpdate={handleTimeUpdate}
+            onEnded={handleNext}
+          />
         </Card>
       )}
     </>
-  )
-}
+  );
+};
 
-export default AudioPlayerCard
-
+export default AudioPlayerCard;

@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { generateScript } from '../../../lib/scripts/podcast-writer';
-import { createNewAudioRow, getAudioUrlsFromDatabase, saveScriptToDB } from '../../../lib/queries';
+import {
+  createNewAudioRow,
+  getAudioUrlsFromDatabase,
+  saveScriptToDB,
+} from '../../../lib/queries';
 import { getSignedUrls } from '../../../lib/scripts/text-to-audio';
 
 export const maxDuration = 60;
@@ -14,10 +18,17 @@ export async function POST(req: Request) {
     const rowId = await createNewAudioRow(userEmail);
     const scriptObj = await generateScript();
     await saveScriptToDB(scriptObj, rowId);
-    return NextResponse.json({ message: 'Podcast creation completed successfully', script: scriptObj, rowId: rowId });
+    return NextResponse.json({
+      message: 'Podcast creation completed successfully',
+      script: scriptObj,
+      rowId: rowId,
+    });
   } catch (error) {
     console.error('Error during podcast creation:', error);
-    return NextResponse.json({ message: 'Error occurred during podcast creation', error }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Error occurred during podcast creation', error },
+      { status: 500 }
+    );
   }
 }
 
@@ -26,7 +37,10 @@ export async function GET(req: Request) {
   const fetchSignedUrls = url.searchParams.get('signedUrls') === 'true';
   const userEmail = url.searchParams.get('userEmail');
   if (!userEmail) {
-    return NextResponse.json({ error: 'User email is required' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'User email is required' },
+      { status: 400 }
+    );
   }
 
   if (fetchSignedUrls) {
@@ -35,13 +49,16 @@ export async function GET(req: Request) {
       return NextResponse.json(signedUrls);
     } catch (error) {
       console.error('Error fetching signed URLs:', error);
-      return NextResponse.json({ error: 'Failed to fetch signed URLs' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Failed to fetch signed URLs' },
+        { status: 500 }
+      );
     }
   } else {
     try {
       const audio_row = await getAudioUrlsFromDatabase(userEmail);
 
-      console.log("loaded audio row", audio_row);
+      console.log('loaded audio row', audio_row);
 
       const validAudioFields = ['section1', 'section2', 'section3']; // 'intro',  'conclusion'
       const audioData: { [key: string]: Blob } = {};
@@ -53,12 +70,14 @@ export async function GET(req: Request) {
       }
 
       // TODO: also return the scriptObj so that we can use the tab names in the audio player card
-      
+
       return NextResponse.json(audioData);
     } catch (error) {
       console.error('Error fetching audio data:', error);
-      return NextResponse.json({ error: 'Failed to fetch audio data' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Failed to fetch audio data' },
+        { status: 500 }
+      );
     }
   }
 }
-

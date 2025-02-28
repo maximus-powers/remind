@@ -14,7 +14,10 @@ export async function DELETE(req: NextRequest) {
     await deleteTabById(id);
     return NextResponse.json({});
   } catch {
-    return NextResponse.json({ error: 'Failed to delete tab' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to delete tab' },
+      { status: 500 }
+    );
   }
 }
 
@@ -31,6 +34,9 @@ export async function PUT(req: NextRequest) {
     await updateTabNameById(id, name);
     return NextResponse.json({});
   } catch {
-    return NextResponse.json({ error: 'Failed to update tab' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to update tab' },
+      { status: 500 }
+    );
   }
 }

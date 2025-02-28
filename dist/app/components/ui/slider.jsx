@@ -1,4 +1,4 @@
-"use client";
+'use client';
 var __rest = (this && this.__rest) || function (s, e) {
     var t = {};
     for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
@@ -10,14 +10,14 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
-import * as React from "react";
-import * as SliderPrimitive from "@radix-ui/react-slider";
-import { cn } from "@/app/lib/utils";
+import * as React from 'react';
+import * as SliderPrimitive from '@radix-ui/react-slider';
+import { cn } from '@/app/lib/utils';
 const Slider = React.forwardRef((_a, ref) => {
     var { className } = _a, props = __rest(_a, ["className"]);
-    return (<SliderPrimitive.Root ref={ref} className={cn("relative flex w-full touch-none select-none items-center", className)} {...props}>
+    return (<SliderPrimitive.Root ref={ref} className={cn('relative flex w-full touch-none select-none items-center', className)} {...props}>
     <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-background/20">
-      <SliderPrimitive.Range className="absolute h-full bg-primary dark:bg-background"/>
+      <SliderPrimitive.Range className="absolute h-full bg-primary dark:bg-primary/20"/>
     </SliderPrimitive.Track>
     <SliderPrimitive.Thumb className="block h-4 w-4 rounded-full border border-primary/50 bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"/>
   </SliderPrimitive.Root>);

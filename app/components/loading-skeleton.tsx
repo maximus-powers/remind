@@ -1,6 +1,6 @@
-import { Loader2 } from "lucide-react"
-import { Card, CardContent } from "@/app/components/ui/card"
-import { Skeleton } from "@/app/components/ui/skeleton"
+import { Loader2 } from 'lucide-react';
+import { Card, CardContent } from '@/app/components/ui/card';
+import { Skeleton } from '@/app/components/ui/skeleton';
 
 export function TabsSkeleton() {
   return (
@@ -10,7 +10,7 @@ export function TabsSkeleton() {
       ))}
       <Skeleton className="h-10 w-10 rounded-lg" />
     </div>
-  )
+  );
 }
 
 export function CardsSkeleton() {
@@ -28,20 +28,23 @@ export function CardsSkeleton() {
         </Card>
       ))}
     </div>
-  )
+  );
 }
 
-export function LoadingSpinner({ size = "medium" }: { size?: "small" | "medium" | "large" }) {
+export function LoadingSpinner({
+  size = 'medium',
+}: {
+  size?: 'small' | 'medium' | 'large';
+}) {
   const sizeClasses = {
-    small: "h-4 w-4",
-    medium: "h-8 w-8",
-    large: "h-12 w-12",
-  }
+    small: 'h-4 w-4',
+    medium: 'h-8 w-8',
+    large: 'h-12 w-12',
+  };
 
   return (
     <div className="flex justify-center items-center py-4">
       <Loader2 className={`${sizeClasses[size]} animate-spin text-primary`} />
     </div>
-  )
+  );
 }
-

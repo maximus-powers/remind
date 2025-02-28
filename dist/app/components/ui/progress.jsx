@@ -1,4 +1,4 @@
-"use client";
+'use client';
 var __rest = (this && this.__rest) || function (s, e) {
     var t = {};
     for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
@@ -10,12 +10,12 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
-import * as React from "react";
-import * as ProgressPrimitive from "@radix-ui/react-progress";
-import { cn } from "@/app/lib/utils";
+import * as React from 'react';
+import * as ProgressPrimitive from '@radix-ui/react-progress';
+import { cn } from '@/app/lib/utils';
 const Progress = React.forwardRef((_a, ref) => {
     var { className, value } = _a, props = __rest(_a, ["className", "value"]);
-    return (<ProgressPrimitive.Root ref={ref} className={cn("relative h-2 w-full overflow-hidden rounded-full bg-primary/20", className)} {...props}>
+    return (<ProgressPrimitive.Root ref={ref} className={cn('relative h-2 w-full overflow-hidden rounded-full bg-primary/20', className)} {...props}>
     <ProgressPrimitive.Indicator className="h-full w-full flex-1 bg-primary transition-all" style={{ transform: `translateX(-${100 - (value || 0)}%)` }}/>
   </ProgressPrimitive.Root>);
 });

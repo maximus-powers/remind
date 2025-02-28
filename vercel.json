@@ -2,10 +2,6 @@
   "version": 2,
   "routes": [
     {
-      "src": "/components/(.*)",
-      "dest": "/src/components/$1"
-    },
-    {
       "src": "/api/:path*",
       "dest": "/app/api/:path*"
     },

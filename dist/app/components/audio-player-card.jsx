@@ -1,9 +1,9 @@
-"use client";
-import { useState, useEffect, useRef } from "react";
-import { Play, Pause, SkipForward, SkipBack, Volume2 } from "lucide-react";
-import { Button } from "@/app/components/ui/button";
-import { Slider } from "@/app/components/ui/slider";
-import { Card, CardContent } from "@/app/components/ui/card";
+'use client';
+import { useState, useEffect, useRef } from 'react';
+import { Play, Pause, SkipForward, SkipBack, Volume2 } from 'lucide-react';
+import { Button } from '@/app/components/ui/button';
+import { Slider } from '@/app/components/ui/slider';
+import { Card, CardContent } from '@/app/components/ui/card';
 export const AudioPlayerCard = () => {
     const [audioUrls, setAudioUrls] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -15,20 +15,26 @@ export const AudioPlayerCard = () => {
     const fetchAudioUrls = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch("/api/data/audio?signedUrls=true", { method: "GET" });
+            const userEmail = localStorage.getItem('userEmail');
+            const response = await fetch(`/api/data/audio?signedUrls=true&userEmail=${userEmail}`, {
+                method: 'GET',
+            });
             const audioData = await response.json();
             console.log(response);
             if (!audioData || Object.keys(audioData).length === 0) {
-                throw new Error("No audio data received");
+                throw new Error('No audio data received');
             }
             setAudioUrls(Object.values(audioData));
             setIsLoading(false);
         }
         catch (error) {
-            console.error("Error fetching audio URLs:", error);
+            console.error('Error fetching audio URLs:', error);
             setIsLoading(false);
         }
     };
+    useEffect(() => {
+        fetchAudioUrls();
+    }, []);
     useEffect(() => {
         if (audioRef.current) {
             if (isPlaying) {
@@ -40,12 +46,7 @@ export const AudioPlayerCard = () => {
         }
     }, [isPlaying]);
     const togglePlayPause = () => {
-        if (audioUrls.length === 0) {
-            fetchAudioUrls();
-        }
-        else {
-            setIsPlaying(!isPlaying);
-        }
+        setIsPlaying(!isPlaying);
     };
     const handlePrevious = () => {
         setCurrentTrack((prev) => {
@@ -91,17 +92,19 @@ export const AudioPlayerCard = () => {
         }
     };
     return (<>
-      {audioUrls.length === 0 ? (<div className="flex justify-center items-center w-full mx-auto p-1">
-          <Button onClick={togglePlayPause} disabled={isLoading} className="w-full">
-            {isLoading ? "Loading..." : "Play Podcast"}
-          </Button>
-        </div>) : (<Card className="w-full max-w-lg mx-auto bg-white shadow-lg rounded-lg overflow-hidden mt-4 mb-2">
+      {isLoading ? (<div className="flex justify-center items-center w-full mx-auto p-1">
+          <p>Loading audio...</p>
+        </div>) : audioUrls.length === 0 ? (<div className="flex justify-center items-center w-full mx-auto p-1">
+          <p>Add some cards and generate your first podcast.</p>
+        </div>) : (<Card className="w-full max-w-lg mx-auto bg-background shadow-lg rounded-lg overflow-hidden mt-4 mb-2">
           <CardContent className="p-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-semibold text-gray-800">Your Daily Byte</h2>
+                <h2 className="text-2xl font-semibold text-primary">
+                  Your daily byte
+                </h2>
                 <span className="text-sm text-gray-500">
-                  Section {currentTrack + 1} of {audioUrls.length} 
+                  section {currentTrack + 1} of {audioUrls.length}
                 </span>
               </div>
 
@@ -116,7 +119,7 @@ export const AudioPlayerCard = () => {
                   <SkipBack className="h-4 w-4"/>
                 </Button>
                 <Button variant="outline" size="icon" onClick={togglePlayPause}>
-                  {isPlaying ? <Pause className="h-4 w-4"/> : <Play className="h-4 w-4"/>}
+                  {isPlaying ? (<Pause className="h-4 w-4"/>) : (<Play className="h-4 w-4"/>)}
                 </Button>
                 <Button variant="outline" size="icon" onClick={handleNext}>
                   <SkipForward className="h-4 w-4"/>

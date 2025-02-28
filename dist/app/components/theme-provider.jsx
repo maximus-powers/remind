@@ -1,4 +1,4 @@
-"use client";
+'use client';
 var __rest = (this && this.__rest) || function (s, e) {
     var t = {};
     for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
@@ -10,8 +10,8 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
-import * as React from "react";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+import * as React from 'react';
+import { ThemeProvider as NextThemesProvider } from 'next-themes';
 export function ThemeProvider(_a) {
     var { children } = _a, props = __rest(_a, ["children"]);
     const [mounted, setMounted] = React.useState(false);
@@ -21,5 +21,7 @@ export function ThemeProvider(_a) {
     if (!mounted) {
         return <>{children}</>;
     }
-    return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+    return (<NextThemesProvider {...props} defaultTheme="dark" enableSystem={false}>
+      {children}
+    </NextThemesProvider>);
 }

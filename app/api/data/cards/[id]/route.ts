@@ -14,7 +14,10 @@ export async function DELETE(req: NextRequest) {
     await deleteCardById(id);
     return NextResponse.json({});
   } catch {
-    return NextResponse.json({ error: 'Failed to delete card' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to delete card' },
+      { status: 500 }
+    );
   }
 }
 
@@ -30,6 +33,9 @@ export async function PUT(req: NextRequest) {
     await updateCardContentById(id, title, text);
     return NextResponse.json({});
   } catch {
-    return NextResponse.json({ error: 'Failed to update card' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to update card' },
+      { status: 500 }
+    );
   }
 }
