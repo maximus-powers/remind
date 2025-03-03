@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎙️ reMind
 
-## Getting Started
+reMind is a daily podcast/curriculum from your notes. Built with Next.js 15, it rocks server-side rendering, API routes, and component-based design.
 
-First, run the development server:
+## 🚀 Next.js 15 Architecture
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This project uses Next.js 15, which brings:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 📄 Pages & Routing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **File-based Routing**: Next.js uses a file-based routing system. The `app` dir has all the pages and API routes.
+- **Dynamic Routes**: Defined with square brackets. E.g., `[id]` in `app/api/data/cards/[id]/route.ts`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🔌 API Routes
 
-## Learn More
+- **API Routes**: In the `app/api` dir. Handle server-side logic and DB interactions.
+- **Data Fetching**: Uses API routes for DB CRUD ops.
 
-To learn more about Next.js, take a look at the following resources:
+### 🧩 Components
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Component-based Arch**: Reusable UI components in `app/components/ui`.
+- **Client-side Components**: Marked with `'use client';` at the top.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🎨 Styling
 
-## Deploy on Vercel
+- **Tailwind CSS**: For styling. Config in `tailwind.config.ts`.
+- **CSS Modules**: Scoped styling for components.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### ⚛️ State Management
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **React Hooks**: Uses `useState`, `useEffect`, `useRef` for state and side effects.
+
+### 🔐 Auth
+
+- **NextAuth.js**: Auth handled with NextAuth.js. Config in `app/lib/auth.ts`.
+
+### 🔧 Env Vars
+
+- **Env Vars**: Sensitive info like DB creds and API keys in env vars. Defined in `.env`.
+
+### 🚢 Deployment
+
+- **Vercel**: Configured for Vercel. Config in `vercel.json`.
+
+## 🛠️ Getting Started
+
+1. **Install Deps**: Run `pnpm install`.
+2. **Set Up Env Vars**: Create a `.env` file with necessary vars.
+3. **Run Dev Server**: Run `pnpm dev`.
+4. **Build Project**: Run `pnpm build`.
+5. **Start Prod Server**: Run `pnpm start`.
+
+## 📜 Scripts
+
+Available scripts in `package.json`:
+
+- `dev`: Start dev server.
+- `build`: Build for prod.
+- `start`: Start prod server.
+- `lint`: Run ESLint.
+- `deploy`: Deploy to Vercel.
+- `prepare`: Compile TS files.
+- `write-pod-script`: Generate podcast script.
+- `format`: Format code with Prettier.
+- `format:check`: Check code formatting with Prettier.
+
+## 📄 License
+
+MIT License.
