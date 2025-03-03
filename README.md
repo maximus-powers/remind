@@ -1,69 +1,94 @@
 # 🎙️ reMind
 
-reMind is a daily podcast/curriculum from your notes. Built with Next.js 15, it rocks server-side rendering, API routes, and component-based design.
+**reMind turns your notes into daily podcasts, creating a personalized curriculum that helps you retain knowledge long-term.**
 
-## 🚀 Next.js 15 Architecture
+## 🧠 The Problem reMind Solves
 
-This project uses Next.js 15, which brings:
+Not being in school can make you feel like your intellect is fading. Despite YouTube rabbit holes and "inTELlecTuaL" endeavors, remembering what you learn is challenging. reMind addresses this by:
+
+1. Converting your notes into structured audio lessons
+2. Delivering them as podcasts to fit into your existing routines
+3. Creating a systematized review process to improve retention
+
+What started as a personal project is now available for anyone who wants to maintain their learning journey.
+
+## 🚀 Tech Stack
+
+This open-source project uses:
+
+* **Frontend**: Next.js 15 (app directory) + TypeScript + Tailwind + shadcn/ui
+* **Backend**: Node.js API (deployed as serverless functions on Vercel)
+* **Database**: MySQL + Backblaze B2 (audio file storage)
+* **AI**: OpenAI for content generation and TTS via their API
+
+## 📐 Architecture
 
 ### 📄 Pages & Routing
-
-- **File-based Routing**: Next.js uses a file-based routing system. The `app` dir has all the pages and API routes.
-- **Dynamic Routes**: Defined with square brackets. E.g., `[id]` in `app/api/data/cards/[id]/route.ts`.
+- **File-based Routing**: The `app` directory contains all pages and API routes
+- **Dynamic Routes**: Using square brackets syntax (e.g., `app/api/data/cards/[id]/route.ts`)
 
 ### 🔌 API Routes
-
-- **API Routes**: In the `app/api` dir. Handle server-side logic and DB interactions.
-- **Data Fetching**: Uses API routes for DB CRUD ops.
+- **Serverless Functions**: API routes in `app/api` handle server-side logic and database operations
+- **Data Fetching**: Clean separation between frontend and backend
 
 ### 🧩 Components
-
-- **Component-based Arch**: Reusable UI components in `app/components/ui`.
-- **Client-side Components**: Marked with `'use client';` at the top.
+- **Component Library**: Reusable UI components in `app/components/ui`
+- **Client Components**: Marked with `'use client';` directive
 
 ### 🎨 Styling
-
-- **Tailwind CSS**: For styling. Config in `tailwind.config.ts`.
-- **CSS Modules**: Scoped styling for components.
+- **Tailwind CSS**: Utility-first styling configured in `tailwind.config.ts`
+- **CSS Modules**: Component-scoped styling
 
 ### ⚛️ State Management
+- **React Hooks**: Using `useState`, `useEffect`, `useRef` for state and side effects
 
-- **React Hooks**: Uses `useState`, `useEffect`, `useRef` for state and side effects.
+### 🔐 Authentication
+- **Auth.js**: Simple, secure authentication (formerly NextAuth.js)
+- **Configuration**: Setup in `app/lib/auth.ts`
 
-### 🔐 Auth
+### 🔧 Environment Variables
+- **Security**: Sensitive information stored in `.env` files
+- **Configuration**: Database credentials, API keys, and other secrets
 
-- **NextAuth.js**: Auth handled with NextAuth.js. Config in `app/lib/auth.ts`.
+## ⚙️ Implementation Highlights
 
-### 🔧 Env Vars
-
-- **Env Vars**: Sensitive info like DB creds and API keys in env vars. Defined in `.env`.
-
-### 🚢 Deployment
-
-- **Vercel**: Configured for Vercel. Config in `vercel.json`.
+- **Prettier Integration**: Automatic code formatting on save (VSCode) or via `pnpm run format`
+- **Backblaze B2 Storage**: Fast audio file delivery (replaces slow base64 database storage)
+- **Vercel AI SDK**: Lightweight alternative to LangChain for AI interactions
+- **OpenAI Integration**: Direct API calls for text-to-speech functionality
+- **v0**: Used for generating shadcn/ui boilerplate components
+- **Serverless Function Optimization**: Processing chunked to avoid Vercel's 60s timeout limits on the free plan
 
 ## 🛠️ Getting Started
 
-1. **Install Deps**: Run `pnpm install`.
-2. **Set Up Env Vars**: Create a `.env` file with necessary vars.
-3. **Run Dev Server**: Run `pnpm dev`.
-4. **Build Project**: Run `pnpm build`.
-5. **Start Prod Server**: Run `pnpm start`.
+1. **Install Dependencies**: `pnpm install`
+2. **Environment Setup**: Create a `.env` file with required variables
+3. **Development Server**: `pnpm dev`
+4. **Build for Production**: `pnpm build`
+5. **Production Server**: `pnpm start`
 
-## 📜 Scripts
+## 📜 Available Scripts
 
-Available scripts in `package.json`:
+- `dev`: Start development server
+- `build`: Build for production
+- `start`: Start production server
+- `lint`: Run ESLint
+- `deploy`: Deploy to Vercel
+- `prepare`: Compile TypeScript files
+- `write-pod-script`: Generate podcast script
+- `format`: Format code with Prettier
+- `format:check`: Check code formatting
 
-- `dev`: Start dev server.
-- `build`: Build for prod.
-- `start`: Start prod server.
-- `lint`: Run ESLint.
-- `deploy`: Deploy to Vercel.
-- `prepare`: Compile TS files.
-- `write-pod-script`: Generate podcast script.
-- `format`: Format code with Prettier.
-- `format:check`: Check code formatting with Prettier.
+## 🔮 Future Development
+
+Planned features include:
+- **AI-Generated Content**: A button to generate additional facts for a category based on existing cards
+- Share your ideas by submitting feedback!
 
 ## 📄 License
 
-MIT License.
+Released under the MIT License.
+
+---
+
+**Try it now for free!** Feedback and pull requests are welcome!
